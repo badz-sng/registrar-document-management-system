@@ -18,9 +18,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 
+        'email', 
+        'password', 
+        'role', 
+        'department'
     ];
 
     /**
@@ -44,5 +46,41 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+     // Relationships
+    public function encodedRequests()
+    {
+        return $this->hasMany(RequestModel::class, 'encoded_by');
+    }
+
+    public function retrievedRequests()
+    {
+        return $this->hasMany(RequestModel::class, 'retriever_id');
+    }
+
+    public function processedRequests()
+    {
+        return $this->hasMany(RequestModel::class, 'processor_id');
+    }
+
+    public function verifiedRequests()
+    {
+        return $this->hasMany(RequestModel::class, 'verifier_id');
+    }
+
+    public function processingLogs()
+    {
+        return $this->hasMany(ProcessingLog::class, 'personnel_id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class DocumentType extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name', 'description', 'processing_category'];
+
+    public function requests()
+    {
+        return $this->hasMany(RequestModel::class);
+    }
+}
+
