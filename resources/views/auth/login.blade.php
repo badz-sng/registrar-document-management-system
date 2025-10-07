@@ -7,7 +7,6 @@
     @vite('resources/css/app.css')
 </head>
 <body x-data="{ dark: false }" :class="dark ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 to-blue-100'">
-    
     <button @click="dark = !dark"
         class="absolute top-5 right-5 p-2 rounded-lg text-gray-600 hover:bg-gray-200"
         title="Toggle dark mode">
