@@ -6,59 +6,21 @@ use Illuminate\Http\Request;
 
 class VerificationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function verify(RequestModel $request)
     {
-        //
-    }
+        $request->update([
+            'status' => 'verified',
+            'verifier_id' => auth()->id(),
+            'verified_at' => now(),
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        ProcessingLog::create([
+            'request_id' => $request->id,
+            'personnel_id' => auth()->id(),
+            'action' => 'Verified document',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return back()->with('success', 'Document verified successfully!');
     }
 }
+
