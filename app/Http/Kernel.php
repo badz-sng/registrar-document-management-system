@@ -1,5 +1,8 @@
 <?php
-
+// this is not working since the middleware is not registered in Kernel.php
+// but instead in bootstrap/app.php
+// so I moved it there :) T_T
+// see bootstrap/app.php for the working version
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
