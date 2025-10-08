@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('status', 'For Verifying')->get();
+        $requests = RequestModel::where('verifier_id', auth()->id())->get();
         return view('verifier.dashboard', compact('requests'));
     }
 

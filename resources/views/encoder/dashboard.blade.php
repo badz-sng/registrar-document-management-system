@@ -7,7 +7,7 @@
     <div class="bg-green-200 text-green-800 p-2 mb-4 rounded">{{ session('success') }}</div>
 @endif
 
-<form method="POST" action="{{ route('encoder.request.store') }}" class="bg-white p-4 rounded shadow mb-6">
+<form method="POST" action="{{ route('request.store') }}" class="bg-white p-4 rounded shadow mb-6">
     @csrf
     <div class="mb-2">
         <label class="block text-gray-600">Student Name</label>

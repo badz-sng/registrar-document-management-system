@@ -47,6 +47,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 */
 Route::middleware(['auth', 'role:encoder'])->prefix('encoder')->group(function () {
     Route::get('/dashboard', [EncoderDashboard::class, 'index'])->name('encoder.dashboard');
+
+    // Request routes for encoder
+    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
+    Route::post('/requests/store', [RequestController::class, 'store'])->name('requests.store');
 });
 
 /*

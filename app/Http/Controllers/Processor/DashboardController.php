@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('status', 'Retrieved')->get();
+        $requests = RequestModel::where('processor_id', auth()->id())->get();
         return view('processor.dashboard', compact('requests'));
     }
 

@@ -12,7 +12,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('user_id', Auth::id())->get();
+        $requests = RequestModel::where('encoded_by', auth()->id())->get();
         return view('encoder.dashboard', compact('requests'));
     }
 

@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('status', 'Pending')->get();
+        $requests = RequestModel::where('retriever_id', auth()->id())->get();
         return view('retriever.dashboard', compact('requests'));
     }
 
