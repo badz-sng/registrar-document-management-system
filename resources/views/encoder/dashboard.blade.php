@@ -7,22 +7,29 @@
     <div class="bg-green-200 text-green-800 p-2 mb-4 rounded">{{ session('success') }}</div>
 @endif
 
-<form method="POST" action="{{ route('request.store') }}" class="bg-white p-4 rounded shadow mb-6">
+<form method="POST" action="{{ route('requests.store') }}" class="bg-white p-4 rounded shadow mb-6">
     @csrf
+
     <div class="mb-2">
-        <label class="block text-gray-600">Student Name</label>
-        <input type="text" name="student_name" class="border p-2 w-full rounded" required>
-    </div>
-    <div class="mb-2">
-        <label class="block text-gray-600">Document Type</label>
-        <select name="document_type" class="border p-2 w-full rounded" required>
-            <option value="">-- Select --</option>
-            <option value="F-137">F-137</option>
-            <option value="F-138">F-138</option>
-            <option value="TOR">TOR</option>
-            <option value="Good Moral Certificate">Good Moral Certificate</option>
+        <label class="block text-gray-600">Student</label>
+        <select name="student_id" class="border p-2 w-full rounded" required>
+            <option value="">-- Select Student --</option>
+            @foreach ($students as $student)
+                <option value="{{ $student->id }}">{{ $student->name }}</option>
+            @endforeach
         </select>
     </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Document Type</label>
+        <select name="document_type_id" class="border p-2 w-full rounded" required>
+            <option value="">-- Select Document Type --</option>
+            @foreach ($documentTypes as $doc)
+                <option value="{{ $doc->id }}">{{ $doc->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
     <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Encode</button>
 </form>
 

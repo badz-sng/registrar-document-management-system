@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use App\Models\Student;
 use App\Models\DocumentType;
-use Carbon\Carbon;
 
 class RequestController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::with(['student', 'documentType', 'encoder'])->latest()->get();
-        return view('requests.index', compact('requests'));
+        // Get all requests encoded by the logged-in user
+        $requests = RequestModel::where('encoded_by', auth()->id())->latest()->get();
+
+        // Get data for dropdowns
+        $students = Student::all();
+        $documentTypes = DocumentType::all();
+
+        // Pass everything to the view
+        return view('encoder.dashboard', compact('requests', 'students', 'documentTypes'));
     }
 
     public function create()
@@ -43,7 +49,8 @@ class RequestController extends Controller
         $data['encoded_at'] = now();
         $data['estimated_release_date'] = $this->calculateReleaseDate(now(), $processingDays);
 
-        RequestModel::create($data);
+        datadump($data);
+        // RequestModel::create($data);
 
         return redirect()->route('requests.index')->with('success', 'Request recorded successfully!');
     }
