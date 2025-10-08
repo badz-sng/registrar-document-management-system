@@ -3,13 +3,22 @@
 namespace App\Http\Controllers\Verifier;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\RequestModel;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $currentUser = Auth::user();
-        return view('verifier.dashboard', compact('currentUser'));
+        $requests = RequestModel::where('status', 'For Verifying')->get();
+        return view('verifier.dashboard', compact('requests'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $req = RequestModel::findOrFail($id);
+        $req->update(['status' => $request->status]);
+
+        return back()->with('success', 'Verification status updated.');
     }
 }
