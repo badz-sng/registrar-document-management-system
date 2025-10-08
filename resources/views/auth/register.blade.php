@@ -57,6 +57,7 @@
                 <option value="processor">Processor</option>
                 <option value="verifier">Verifier</option>
                 <option value="admin">Admin</option>
+                <option value="retriever">Retriever</option>
             </select>
         </div>
 
