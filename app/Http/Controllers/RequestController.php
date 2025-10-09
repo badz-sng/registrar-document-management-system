@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use App\Models\Student;
 use App\Models\DocumentType;
+use Illuminate\Http\Request;
 
 class RequestController extends Controller
 {
@@ -49,14 +50,14 @@ class RequestController extends Controller
         $data['encoded_at'] = now();
         $data['estimated_release_date'] = $this->calculateReleaseDate(now(), $processingDays);
 
-        datadump($data);
-        // RequestModel::create($data);
+        // datadump($data);
+        RequestModel::create($data);
 
         return redirect()->route('requests.index')->with('success', 'Request recorded successfully!');
     }
 
     public function show(RequestModel $request)
-    {
+    { 
         return view('requests.show', compact('request'));
     }
 

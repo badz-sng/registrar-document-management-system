@@ -11,22 +11,24 @@
     @csrf
 
     <div class="mb-2">
-        <label class="block text-gray-600">Student</label>
-        <select name="student_id" class="border p-2 w-full rounded" required>
-            <option value="">-- Select Student --</option>
-            @foreach ($students as $student)
-                <option value="{{ $student->id }}">{{ $student->name }}</option>
-            @endforeach
-        </select>
+        <label class="block text-gray-600">Student Name</label>
+        <input type="text" name="student_name" class="border p-2 w-full rounded" required>
     </div>
 
     <div class="mb-2">
         <label class="block text-gray-600">Document Type</label>
         <select name="document_type_id" class="border p-2 w-full rounded" required>
-            <option value="">-- Select Document Type --</option>
-            @foreach ($documentTypes as $doc)
-                <option value="{{ $doc->id }}">{{ $doc->name }}</option>
-            @endforeach
+            <option value="">-- Select --</option>
+            <option value="F-137">F-137</option>
+            <option value="F-138">F-138</option>
+            <option value="TOR">TOR</option>
+            <option value="Transfer Credential">Transfer Credential</option>
+            <option value="Good Moral Certificate">Good Moral Certificate</option>
+            <option value="Diploma">Diploma</option>
+            <option value="Certificate of Grades">Certificate of Grades</option>
+            <option value="Certificate of Enrollment">Certificate of Enrollment</option>
+            <option value="Certificate of Graduation">Certificate of Graduation</option>
+            <option value="Honorable Dismissal">Honorable Dismissal</option>
         </select>
     </div>
 
@@ -46,10 +48,10 @@
     <tbody>
         @foreach ($requests as $r)
             <tr class="border-t">
-                <td class="p-2">{{ $r->student_name }}</td>
-                <td class="p-2">{{ $r->document_type }}</td>
+                <td class="p-2">{{ $r->student->name ?? 'N/A' }}</td>
+                <td class="p-2">{{ $r->documentType->name ?? 'N/A' }}</td>
                 <td class="p-2">{{ $r->status }}</td>
-                <td class="p-2">{{ \Carbon\Carbon::parse($r->release_date)->toFormattedDateString() }}</td>
+                <td class="p-2">{{ \Carbon\Carbon::parse($r->estimated_release_date)->toFormattedDateString() }}</td>
             </tr>
         @endforeach
     </tbody>
