@@ -11,25 +11,69 @@
     @csrf
 
     <div class="mb-2">
-        <label class="block text-gray-600">Student Name</label>
-        <input type="text" name="student_name" class="border p-2 w-full rounded" required>
+        <label class="block text-gray-600">Student Number</label>
+        <input type="text" name="student_no" class="border p-2 w-full rounded" required value="{{ old('student_no') }}">
+        @error('student_no')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
     </div>
 
     <div class="mb-2">
-        <label class="block text-gray-600">Document Type</label>
-        <select name="document_type_id" class="border p-2 w-full rounded" required>
-            <option value="">-- Select --</option>
-            <option value="F-137">F-137</option>
-            <option value="F-138">F-138</option>
-            <option value="TOR">TOR</option>
-            <option value="Transfer Credential">Transfer Credential</option>
-            <option value="Good Moral Certificate">Good Moral Certificate</option>
-            <option value="Diploma">Diploma</option>
-            <option value="Certificate of Grades">Certificate of Grades</option>
-            <option value="Certificate of Enrollment">Certificate of Enrollment</option>
-            <option value="Certificate of Graduation">Certificate of Graduation</option>
-            <option value="Honorable Dismissal">Honorable Dismissal</option>
+        <label class="block text-gray-600">Student Name</label>
+        <input type="text" name="name" class="border p-2 w-full rounded" required value="{{ old('name') }}">
+        @error('name')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Course</label>
+        <input type="text" name="course" class="border p-2 w-full rounded" required value="{{ old('course') }}">
+        @error('course')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Year Level</label>
+        <input type="text" name="year_level" class="border p-2 w-full rounded" required value="{{ old('year_level') }}">
+        @error('year_level')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Address</label>
+        <input type="text" name="address" class="border p-2 w-full rounded" required value="{{ old('address') }}">
+        @error('address')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Contact Number</label>
+        <input type="text" name="contact_number" class="border p-2 w-full rounded" required value="{{ old('contact_number') }}">
+        @error('contact_number')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Email</label>
+        <input type="email" name="email" class="border p-2 w-full rounded" required value="{{ old('email') }}">
+        @error('email')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-2">
+        <label class="block text-gray-600">Document Types</label>
+        <select name="document_type_id[]" class="border p-2 w-full rounded" multiple required>
+            @foreach ($documentTypes as $type)
+                <option value="{{ $type->id }}" {{ (collect(old('document_type_id'))->contains($type->id)) ? 'selected' : '' }}>{{ $type->name }}</option>
+            @endforeach
         </select>
+        <small class="text-gray-500">Hold Ctrl (Windows) or Command (Mac) to select multiple.</small>
     </div>
 
     <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Encode</button>

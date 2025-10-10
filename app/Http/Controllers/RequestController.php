@@ -7,6 +7,7 @@ use App\Models\RequestModel;
 use App\Models\Student;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class RequestController extends Controller
 {
@@ -32,28 +33,58 @@ class RequestController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'document_type_id' => 'required|exists:document_types,id',
+
+        $validated = $request->validate([
+            'student_no' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'course' => 'required|string|max:255',
+            'year_level' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'document_type_id' => 'required|array',
+            'document_type_id.*' => 'required|exists:document_types,id',
             'representative_id' => 'nullable|exists:representatives,id',
             'authorization_id' => 'nullable|exists:authorizations,id',
         ]);
 
-        $data['encoded_by'] = auth()->id();
-        $data['status'] = 'Pending';
+        // Create or find the student by all fillable fields
+        $student = Student::firstOrCreate([
+            'student_no' => $validated['student_no'],
+            'name' => $validated['name'],
+            'course' => $validated['course'],
+            'year_level' => $validated['year_level'],
+            'address' => $validated['address'],
+            'contact_number' => $validated['contact_number'],
+            'email' => $validated['email'],
+        ]);
 
-        // 🗓 Get the document type to determine processing days
-        $documentType = DocumentType::findOrFail($data['document_type_id']);
-        $processingDays = $this->getProcessingDays($documentType->name);
+        // Get all selected document types
+        $documentTypeIds = $validated['document_type_id'];
+        $processingDaysList = [];
+        foreach ($documentTypeIds as $docTypeId) {
+            $docType = DocumentType::findOrFail($docTypeId);
+            $processingDaysList[] = $this->getProcessingDays($docType->name);
+        }
+        $maxProcessingDays = max($processingDaysList);
+        $releaseDate = $this->calculateReleaseDate(now(), $maxProcessingDays);
 
-        // 📅 Calculate estimated release date excluding weekends & holidays
-        $data['encoded_at'] = now();
-        $data['estimated_release_date'] = $this->calculateReleaseDate(now(), $processingDays);
+        // Create a request for each document type, all with the same release date
+        foreach ($documentTypeIds as $docTypeId) {
+            $data = [
+                'student_id' => $student->id,
+                'document_type_id' => $docTypeId,
+                'representative_id' => $validated['representative_id'] ?? null,
+                'authorization_id' => $validated['authorization_id'] ?? null,
+                'encoded_by' => auth()->id(),
+                'status' => 'Pending',
+                'encoded_at' => now(),
+                'estimated_release_date' => $releaseDate,
+            ];
+            RequestModel::create($data);
+        }
 
-        // datadump($data);
-        RequestModel::create($data);
-
-        return redirect()->route('requests.index')->with('success', 'Request recorded successfully!');
+        return redirect()->route('requests.index')->with('success', 'Requests recorded successfully!');
     }
 
     public function show(RequestModel $request)
