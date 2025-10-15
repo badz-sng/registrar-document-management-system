@@ -13,7 +13,7 @@ This is a Laravel-based document management system for registrar operations. The
 ## Developer Workflows
 - **Build & Serve**: Use `php artisan serve` for local development. Frontend assets are built with Vite (`npm run dev`).
 - **Testing**: Run `php artisan test` or `vendor/bin/pest` for tests. Feature and unit tests are in `tests/Feature` and `tests/Unit`.
-- **Database**: SQLite is used for local development (`database/database.sqlite`). Migrate with `php artisan migrate`.
+- **Database**: SQLite is used for local development (`database/database.mysql`). Migrate with `php artisan migrate`.
 - **Seeding**: Use `php artisan db:seed` to populate sample data.
 
 ## Project-Specific Patterns
