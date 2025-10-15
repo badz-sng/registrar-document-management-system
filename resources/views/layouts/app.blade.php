@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,9 @@
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen">
     <nav class="bg-white shadow p-4 flex justify-between items-center">
+    <!-- Dark mode toggle removed -->
         <a href="/">
-        <div class="font-bold text-xl">
+    <div class="font-bold text-xl">
             {{ ucfirst(auth()->user()->role) }} Dashboard
         </div>
         </a>
@@ -34,5 +35,6 @@
     <main class="p-6">
         @yield('content')
     </main>
+<!-- Dark mode scripts removed -->
 </body>
 </html>

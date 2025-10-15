@@ -1,23 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FilePilot Login</title>
     @vite('resources/css/app.css')
 </head>
-<body x-data="{ dark: false }" :class="dark ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 to-blue-100'">
-    <button @click="dark = !dark"
-        class="absolute top-5 right-5 p-2 rounded-lg text-gray-600 hover:bg-gray-200"
-        title="Toggle dark mode">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path x-show="!dark" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 3v1m0 16v1m8.485-8.485h1M3.515 12.515h1M16.95 7.05l.707-.707M6.343 17.657l.707-.707M16.95 16.95l.707.707M6.343 6.343l.707.707M12 5a7 7 0 100 14a7 7 0 000-14z" />
-            <path x-show="dark" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
-        </svg>
-    </button>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900">
+    <!-- Dark mode toggle removed -->
 
+    <div class="flex items-center justify-center min-h-screen">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
         {{-- Logo --}}
         <div class="text-center">
@@ -26,7 +18,7 @@
         </div>
 
         {{-- Login Form --}}
-        <form method="POST" action="{{ route('login') }}" class="space-y-5">
+    <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 
             {{-- Email --}}
@@ -75,16 +67,15 @@
         </div>
 
         {{-- Register link --}}
-        <p class="text-center text-sm text-gray-600">
+    <p class="text-center text-sm text-gray-600">
             Don’t have an account?
             <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Register</a>
         </p>
 
         {{-- Footer --}}
-        <p class="text-center text-xs text-gray-400 mt-6">
+    <p class="text-center text-xs text-gray-400 mt-6">
             © {{ date('Y') }} FilePilot. All rights reserved.
         </p>
     </div>
-
 </body>
 </html>
