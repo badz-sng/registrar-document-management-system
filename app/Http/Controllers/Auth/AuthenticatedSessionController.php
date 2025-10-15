@@ -28,6 +28,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Log login event
+        \App\Models\LoginHistory::create([
+            'user_id' => Auth::id(),
+            'ip_address' => $request->ip(),
+            'created_at' => now(),
+        ]);
+
         return redirect()->intended('/');
     }
 
