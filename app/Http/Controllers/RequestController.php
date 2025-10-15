@@ -69,7 +69,28 @@ class RequestController extends Controller
         $maxProcessingDays = max($processingDaysList);
         $releaseDate = $this->calculateReleaseDate(now(), $maxProcessingDays);
 
-        // Create a request for each document type, all with the same release date
+        // Cutoff logic: if any document type exceeds 10 requests for the release date, add 1 day for all
+        $cutoffExceeded = false;
+        foreach ($documentTypeIds as $docTypeId) {
+            $count = RequestModel::where('document_type_id', $docTypeId)
+                ->whereDate('estimated_release_date', $releaseDate->format('Y-m-d'))
+                ->count();
+            if ($count >= 10) {
+                $cutoffExceeded = true;
+                break;
+            }
+        }
+        if ($cutoffExceeded) {
+            // Add 1 day, skipping weekends/holidays
+            $holidays = [
+                '2025-01-01', '2025-04-17', '2025-04-18', '2025-06-12', '2025-11-01', '2025-12-25', '2025-12-30'
+            ];
+            do {
+                $releaseDate->addDay();
+            } while ($releaseDate->isWeekend() || in_array($releaseDate->format('Y-m-d'), $holidays));
+        }
+
+        // Create a request for each document type, all with the (possibly adjusted) release date
         foreach ($documentTypeIds as $docTypeId) {
             $data = [
                 'student_id' => $student->id,
