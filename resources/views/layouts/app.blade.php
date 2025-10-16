@@ -35,6 +35,106 @@
     <main class="p-6">
         @yield('content')
     </main>
-<!-- Dark mode scripts removed -->
+<!-- Table pagination: automatically adds per-table pagination controls for large tables.
+     Usage: All <table> elements will get client-side pagination (rows-per-page: 10/20/50).
+     To disable pagination for a specific table, add the attribute: data-no-paginate="true" on the <table> element.
+
+    To set a different default rows-per-page, add the attribute: data-rows-default="20" (or 10, 50) on the <table> element.
+
+    The pagination script is placed only in this layout to avoid redundancy across multiple views since this layout is used by all roles.
+-->
+    
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Attach paginator to all tables unless explicitly opted out
+    document.querySelectorAll('table').forEach(function (table) {
+        if (table.dataset.noPaginate === 'true') return;
+
+        const tbody = table.tBodies && table.tBodies.length ? table.tBodies[0] : table;
+        const allRows = Array.from(tbody.querySelectorAll('tr'));
+        if (!allRows.length) return;
+
+        // Create controls container
+        const controls = document.createElement('div');
+        controls.className = 'flex items-center justify-between my-3 gap-4';
+
+        // Rows per page select
+        const perPageSelect = document.createElement('select');
+        perPageSelect.className = 'border rounded px-2 py-1 text-sm';
+        [10,20,50].forEach(function(n){
+            const opt = document.createElement('option'); opt.value = n; opt.textContent = n + ' rows';
+            perPageSelect.appendChild(opt);
+        });
+        // default
+        perPageSelect.value = table.dataset.rowsDefault || 10;
+
+        // Info display
+        const info = document.createElement('div');
+        info.className = 'text-sm text-gray-700';
+
+        // Pagination buttons
+        const nav = document.createElement('div');
+        nav.className = 'flex items-center gap-2';
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button'; prevBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; prevBtn.textContent = 'Prev';
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button'; nextBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; nextBtn.textContent = 'Next';
+
+        nav.appendChild(prevBtn);
+        // page number display
+        const pageDisplay = document.createElement('span');
+        pageDisplay.className = 'px-2 text-sm'; pageDisplay.textContent = '';
+        nav.appendChild(pageDisplay);
+        nav.appendChild(nextBtn);
+
+        // Assemble controls
+        const left = document.createElement('div'); left.className = 'flex items-center gap-2';
+        const label = document.createElement('label'); label.className = 'text-sm text-gray-700'; label.textContent = 'Rows:';
+        left.appendChild(label); left.appendChild(perPageSelect);
+        controls.appendChild(left);
+        controls.appendChild(info);
+        controls.appendChild(nav);
+
+        // Insert controls before the table
+        table.parentNode.insertBefore(controls, table);
+
+        // Pagination state
+        let perPage = parseInt(perPageSelect.value,10) || 10;
+        let currentPage = 1;
+
+        function render() {
+            const total = allRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / perPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+
+            allRows.forEach(function(row, idx){
+                if (idx >= start && idx < end) row.style.display = '';
+                else row.style.display = 'none';
+            });
+
+            info.textContent = `Showing ${Math.min(total, start+1)} to ${Math.min(total, end)} of ${total} Entries`;
+            pageDisplay.textContent = `Page ${currentPage} / ${totalPages}`;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+            nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+        }
+
+        perPageSelect.addEventListener('change', function(){
+            perPage = parseInt(perPageSelect.value,10) || 10;
+            currentPage = 1;
+            render();
+        });
+
+        prevBtn.addEventListener('click', function(){ if (currentPage > 1) { currentPage--; render(); } });
+        nextBtn.addEventListener('click', function(){ const totalPages = Math.max(1, Math.ceil(allRows.length / perPage)); if (currentPage < totalPages) { currentPage++; render(); } });
+
+        // initial render
+        render();
+    });
+});
+</script>
 </body>
 </html>
