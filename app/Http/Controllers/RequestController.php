@@ -35,32 +35,66 @@ class RequestController extends Controller
     {
 
         $validated = $request->validate([
-            'student_no' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
+            // Accept either legacy fields or new split name fields
+            'student_no' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'first_name' => 'nullable|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_school_year' => 'nullable|string|max:50',
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'contact_number' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'document_type_id' => 'required|array',
-            'document_type_id.*' => 'required|exists:document_types,id',
+            'document_type_id.*' => 'required',
+            'document_type_other' => 'nullable|string|max:255',
             'representative_id' => 'nullable|exists:representatives,id',
+            'representative_name' => 'nullable|string|max:255',
             'authorization_id' => 'nullable|exists:authorizations,id',
         ]);
 
-        // Create or find the student by all fillable fields
-        $student = Student::firstOrCreate([
-            'student_no' => $validated['student_no'],
-            'name' => $validated['name'],
+        // Build student name: prefer split fields if provided, else fallback to legacy name
+        if (!empty($validated['last_name']) && !empty($validated['first_name'])) {
+            $studentName = trim($validated['last_name'] . ', ' . $validated['first_name'] . ' ' . ($validated['middle_name'] ?? ''));
+        } else {
+            $studentName = $validated['name'] ?? null;
+        }
+
+        // Create or find the student by provided fields
+        $studentData = [
+            'name' => $studentName,
             'course' => $validated['course'],
             'year_level' => $validated['year_level'],
             'address' => $validated['address'],
             'contact_number' => $validated['contact_number'],
             'email' => $validated['email'],
-        ]);
+        ];
+        if (!empty($validated['student_no'])) {
+            $studentData['student_no'] = $validated['student_no'];
+        }
+        if (!empty($validated['last_school_year'])) {
+            $studentData['last_school_year'] = $validated['last_school_year'];
+        }
 
-        // Get all selected document types
-        $documentTypeIds = $validated['document_type_id'];
+        $student = Student::firstOrCreate($studentData);
+
+        // Get all selected document types (handle 'other' option)
+        $selected = $request->input('document_type_id', []);
+        $documentTypeIds = [];
+        foreach ((array)$selected as $sel) {
+            if ($sel === 'other') continue;
+            if (is_numeric($sel)) $documentTypeIds[] = (int)$sel;
+        }
+        if (in_array('other', (array)$selected) && $request->filled('document_type_other')) {
+            $other = DocumentType::firstOrCreate(['name' => $request->input('document_type_other')]);
+            $documentTypeIds[] = $other->id;
+        }
+
+        if (empty($documentTypeIds)) {
+            return back()->withErrors(['document_type_id' => 'Please select at least one document type'])->withInput();
+        }
         $processingDaysList = [];
         foreach ($documentTypeIds as $docTypeId) {
             $docType = DocumentType::findOrFail($docTypeId);
@@ -107,6 +141,7 @@ class RequestController extends Controller
             'document_type_id' => count($documentTypeIds) ? $documentTypeIds[0] : null,
             'document_type_ids' => $documentTypeIds,
             'representative_id' => $validated['representative_id'] ?? null,
+            'representative_name' => $validated['representative_name'] ?? null,
             'authorization_id' => $validated['authorization_id'] ?? null,
             'encoded_by' => auth()->id(),
             'status' => 'Pending',

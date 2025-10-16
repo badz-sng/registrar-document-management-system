@@ -16,6 +16,7 @@ class RequestModel extends Model
         'representative_id',
         'document_type_id',
         'document_type_ids',
+        'representative_name',
         'authorization_id',
         'status',
         'encoded_by',

@@ -10,18 +10,34 @@
 <form method="POST" action="{{ route('requests.store') }}" class="bg-white p-4 rounded shadow mb-6">
     @csrf
 
-    <div class="mb-2">
-        <label class="block text-gray-600">Student Number</label>
-        <input type="text" name="student_no" class="border p-2 w-full rounded" required value="{{ old('student_no') }}">
-        @error('student_no')
-            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
-        @enderror
+    <div class="mb-2 grid grid-cols-3 gap-2">
+        <div>
+            <label class="block text-gray-600">Last Name</label>
+            <input type="text" name="last_name" class="border p-2 w-full rounded" required value="{{ old('last_name') }}">
+            @error('last_name')
+                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+        <div>
+            <label class="block text-gray-600">First Name</label>
+            <input type="text" name="first_name" class="border p-2 w-full rounded" required value="{{ old('first_name') }}">
+            @error('first_name')
+                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+            @enderror
+        </div>
+        <div>
+            <label class="block text-gray-600">Middle Name</label>
+            <input type="text" name="middle_name" class="border p-2 w-full rounded" value="{{ old('middle_name') }}">
+            @error('middle_name')
+                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+            @enderror
+        </div>
     </div>
 
     <div class="mb-2">
-        <label class="block text-gray-600">Student Name</label>
-        <input type="text" name="name" class="border p-2 w-full rounded" required value="{{ old('name') }}">
-        @error('name')
+        <label class="block text-gray-600">Last School Year Attended</label>
+        <input type="text" name="last_school_year" class="border p-2 w-full rounded" value="{{ old('last_school_year') }}" placeholder="e.g. 2023-2024">
+        @error('last_school_year')
             <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
         @enderror
     </div>
@@ -68,14 +84,37 @@
 
     <div class="mb-2">
         <label class="block text-gray-600">Document Types</label>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2" id="doc-types">
             @foreach ($documentTypes as $type)
                 <label class="inline-flex items-center">
-                    <input type="checkbox" name="document_type_id[]" value="{{ $type->id }}" class="mr-2" {{ (is_array(old('document_type_id')) && in_array($type->id, old('document_type_id'))) ? 'checked' : '' }}>
+                    <input type="checkbox" name="document_type_id[]" value="{{ $type->id }}" class="mr-2 doc-type-checkbox" {{ (is_array(old('document_type_id')) && in_array($type->id, old('document_type_id'))) ? 'checked' : '' }}>
                     <span class="text-gray-700">{{ $type->name }}</span>
                 </label>
             @endforeach
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="document_type_id[]" value="other" class="mr-2 doc-type-checkbox" id="doc-type-other" {{ (is_array(old('document_type_id')) && in_array('other', old('document_type_id'))) ? 'checked' : '' }}>
+                <span class="text-gray-700">Other</span>
+            </label>
         </div>
+        <div class="mt-2" id="other-doc-input" style="display: {{ (is_array(old('document_type_id')) && in_array('other', old('document_type_id'))) ? 'block' : 'none' }};">
+            <label class="block text-gray-600">Other Document Type (please specify)</label>
+            <input type="text" name="document_type_other" class="border p-2 w-full rounded" value="{{ old('document_type_other') }}">
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="inline-flex items-center">
+            <input type="checkbox" id="is-representative" class="mr-2" {{ old('is_representative') ? 'checked' : '' }}>
+            <span class="text-gray-700">Requester is not the student (enter representative name)</span>
+        </label>
+    </div>
+
+    <div class="mb-2" id="representative-name" style="display: {{ old('is_representative') ? 'block' : 'none' }};">
+        <label class="block text-gray-600">Representative Name</label>
+        <input type="text" name="representative_name" class="border p-2 w-full rounded" value="{{ old('representative_name') }}">
+        @error('representative_name')
+            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+        @enderror
     </div>
 
     <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Encode</button>
@@ -108,3 +147,26 @@
     </tbody>
 </table>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const otherCheckbox = document.getElementById('doc-type-other');
+    const otherInput = document.getElementById('other-doc-input');
+    const repCheckbox = document.getElementById('is-representative');
+    const repInputWrap = document.getElementById('representative-name');
+
+    if (otherCheckbox) {
+        otherCheckbox.addEventListener('change', function () {
+            otherInput.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+
+    if (repCheckbox) {
+        repCheckbox.addEventListener('change', function () {
+            repInputWrap.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+});
+</script>
+@endpush

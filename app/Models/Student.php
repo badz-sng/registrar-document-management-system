@@ -11,7 +11,7 @@ class Student extends Model
 
     protected $fillable = [
         'student_no', 'name', 'course', 'year_level',
-        'address', 'contact_number', 'email'
+        'address', 'contact_number', 'email', 'last_school_year'
     ];
 
     public function requests()
