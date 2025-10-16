@@ -70,10 +70,9 @@ class RequestController extends Controller
             'address' => $validated['address'],
             'contact_number' => $validated['contact_number'],
             'email' => $validated['email'],
+            // DB requires student_no; default to empty string if not provided
+            'student_no' => $validated['student_no'] ?? '',
         ];
-        if (!empty($validated['student_no'])) {
-            $studentData['student_no'] = $validated['student_no'];
-        }
         if (!empty($validated['last_school_year'])) {
             $studentData['last_school_year'] = $validated['last_school_year'];
         }

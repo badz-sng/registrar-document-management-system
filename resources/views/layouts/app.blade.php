@@ -35,6 +35,7 @@
     <main class="p-6">
         @yield('content')
     </main>
+    @stack('scripts')
 <!-- Table pagination: automatically adds per-table pagination controls for large tables.
      Usage: All <table> elements will get client-side pagination (rows-per-page: 10/20/50).
      To disable pagination for a specific table, add the attribute: data-no-paginate="true" on the <table> element.

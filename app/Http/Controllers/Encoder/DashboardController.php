@@ -43,6 +43,8 @@ class DashboardController extends Controller
 
         // Create or find the Student (include last_school_year if provided)
         $studentData = ['name' => $fullName];
+        // Ensure student_no is present (DB currently requires it). Use empty string if not provided.
+        $studentData['student_no'] = $request->input('student_no', '');
         if ($request->filled('last_school_year')) {
             $studentData['last_school_year'] = $request->input('last_school_year');
         }
