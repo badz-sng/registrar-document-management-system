@@ -68,12 +68,14 @@
 
     <div class="mb-2">
         <label class="block text-gray-600">Document Types</label>
-        <select name="document_type_id[]" class="border p-2 w-full rounded" multiple required>
+        <div class="grid grid-cols-2 gap-2">
             @foreach ($documentTypes as $type)
-                <option value="{{ $type->id }}" {{ (collect(old('document_type_id'))->contains($type->id)) ? 'selected' : '' }}>{{ $type->name }}</option>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="document_type_id[]" value="{{ $type->id }}" class="mr-2" {{ (is_array(old('document_type_id')) && in_array($type->id, old('document_type_id'))) ? 'checked' : '' }}>
+                    <span class="text-gray-700">{{ $type->name }}</span>
+                </label>
             @endforeach
-        </select>
-        <small class="text-gray-500">Hold Ctrl (Windows) or Command (Mac) to select multiple.</small>
+        </div>
     </div>
 
     <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Encode</button>
@@ -93,7 +95,12 @@
         @foreach ($requests as $r)
             <tr class="border-t">
                 <td class="p-2">{{ $r->student->name ?? 'N/A' }}</td>
-                <td class="p-2">{{ $r->documentType->name ?? 'N/A' }}</td>
+                <td class="p-2">
+                    @php
+                        $names = $r->documentTypes()->pluck('name')->toArray();
+                    @endphp
+                    {{ count($names) ? implode(', ', $names) : ($r->documentType->name ?? 'N/A') }}
+                </td>
                 <td class="p-2">{{ $r->status }}</td>
                 <td class="p-2">{{ \Carbon\Carbon::parse($r->estimated_release_date)->toFormattedDateString() }}</td>
             </tr>

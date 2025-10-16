@@ -43,9 +43,88 @@
 
     The pagination script is placed only in this layout to avoid redundancy across multiple views since this layout is used by all roles.
 -->
-    
+
 <script>
+/**
+ * Client-side table pagination
+ *
+ * What it does:
+ *  - Automatically attaches a small pagination UI to each <table> on the page (unless opted-out).
+ *  - Provides a rows-per-page selector (10/20/50), Prev/Next navigation, page indicator, and a compact info text.
+ *
+ * Why it's here:
+ *  - Provides quick client-side pagination for long tables without changing backend routes or controller logic.
+ *
+ * Usage:
+ *  - The script runs on DOMContentLoaded and locates all <table> elements.
+ *  - Opt-out: add data-no-paginate="true" to a <table> to skip pagination.
+ *  - Per-table default: add data-rows-default="20" to set default rows-per-page for that table.
+ *
+ * Notes:
+ *  - Rows are shown/hidden by setting inline style.display on each <tr>.
+ *  - If a table contains multiple TBODY sections, only the first TBODY (tBodies[0]) is used for pagination.
+ */
 document.addEventListener('DOMContentLoaded', function () {
+    /**
+     * buildControls(table)
+     *
+     * Creates and returns a set of DOM elements used as pagination controls for the given table.
+     *
+     * Inputs:
+     *  - table: HTMLTableElement the controls are for.
+     *
+     * Returns: an object { controls, perPageSelect, info, prevBtn, nextBtn, pageDisplay }
+     *  - controls: wrapper element containing the whole UI
+     *  - perPageSelect: <select> element for rows-per-page
+     *  - info: <div> for compact status text
+     *  - prevBtn, nextBtn: navigation buttons
+     *  - pageDisplay: current page / total pages text element
+     */
+    function buildControls(table) {
+        const controls = document.createElement('div');
+        controls.className = 'flex items-center justify-between my-3 gap-4';
+
+        const perPageSelect = document.createElement('select');
+        perPageSelect.className = 'border rounded px-2 py-1 text-sm';
+        [10, 20, 50].forEach(function (n) {
+            const opt = document.createElement('option');
+            opt.value = n; opt.textContent = n + ' rows';
+            perPageSelect.appendChild(opt);
+        });
+        perPageSelect.value = table.dataset.rowsDefault || 10;
+
+        const info = document.createElement('div');
+        info.className = 'text-sm text-gray-700';
+
+        const nav = document.createElement('div');
+        nav.className = 'flex items-center gap-2';
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button'; prevBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; prevBtn.textContent = 'Prev';
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button'; nextBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; nextBtn.textContent = 'Next';
+
+        const pageDisplay = document.createElement('span');
+        pageDisplay.className = 'px-2 text-sm';
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(pageDisplay);
+        nav.appendChild(nextBtn);
+
+        const left = document.createElement('div');
+        left.className = 'flex items-center gap-2';
+        const label = document.createElement('label');
+        label.className = 'text-sm text-gray-700';
+        label.textContent = 'Rows:';
+        left.appendChild(label);
+        left.appendChild(perPageSelect);
+
+        controls.appendChild(left);
+        controls.appendChild(info);
+        controls.appendChild(nav);
+
+        return { controls, perPageSelect, info, prevBtn, nextBtn, pageDisplay };
+    }
+
     // Attach paginator to all tables unless explicitly opted out
     document.querySelectorAll('table').forEach(function (table) {
         if (table.dataset.noPaginate === 'true') return;
@@ -54,54 +133,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const allRows = Array.from(tbody.querySelectorAll('tr'));
         if (!allRows.length) return;
 
-        // Create controls container
-        const controls = document.createElement('div');
-        controls.className = 'flex items-center justify-between my-3 gap-4';
+        const ui = buildControls(table);
+        table.parentNode.insertBefore(ui.controls, table);
 
-        // Rows per page select
-        const perPageSelect = document.createElement('select');
-        perPageSelect.className = 'border rounded px-2 py-1 text-sm';
-        [10,20,50].forEach(function(n){
-            const opt = document.createElement('option'); opt.value = n; opt.textContent = n + ' rows';
-            perPageSelect.appendChild(opt);
-        });
-        // default
-        perPageSelect.value = table.dataset.rowsDefault || 10;
-
-        // Info display
-        const info = document.createElement('div');
-        info.className = 'text-sm text-gray-700';
-
-        // Pagination buttons
-        const nav = document.createElement('div');
-        nav.className = 'flex items-center gap-2';
-        const prevBtn = document.createElement('button');
-        prevBtn.type = 'button'; prevBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; prevBtn.textContent = 'Prev';
-        const nextBtn = document.createElement('button');
-        nextBtn.type = 'button'; nextBtn.className = 'px-2 py-1 border rounded text-sm bg-white hover:bg-gray-50'; nextBtn.textContent = 'Next';
-
-        nav.appendChild(prevBtn);
-        // page number display
-        const pageDisplay = document.createElement('span');
-        pageDisplay.className = 'px-2 text-sm'; pageDisplay.textContent = '';
-        nav.appendChild(pageDisplay);
-        nav.appendChild(nextBtn);
-
-        // Assemble controls
-        const left = document.createElement('div'); left.className = 'flex items-center gap-2';
-        const label = document.createElement('label'); label.className = 'text-sm text-gray-700'; label.textContent = 'Rows:';
-        left.appendChild(label); left.appendChild(perPageSelect);
-        controls.appendChild(left);
-        controls.appendChild(info);
-        controls.appendChild(nav);
-
-        // Insert controls before the table
-        table.parentNode.insertBefore(controls, table);
-
-        // Pagination state
-        let perPage = parseInt(perPageSelect.value,10) || 10;
+        // State
+        let perPage = parseInt(ui.perPageSelect.value, 10) || 10;
         let currentPage = 1;
 
+        /**
+         * render()
+         *
+         * Renders the table rows based on current pagination state and updates UI.
+         * No inputs. Side-effects: updates DOM (rows' display, info text, button disabled state).
+         */
         function render() {
             const total = allRows.length;
             const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -109,27 +153,26 @@ document.addEventListener('DOMContentLoaded', function () {
             const start = (currentPage - 1) * perPage;
             const end = start + perPage;
 
-            allRows.forEach(function(row, idx){
-                if (idx >= start && idx < end) row.style.display = '';
-                else row.style.display = 'none';
+            allRows.forEach(function (row, idx) {
+                row.style.display = (idx >= start && idx < end) ? '' : 'none';
             });
 
-            info.textContent = `Showing ${Math.min(total, start+1)} to ${Math.min(total, end)} of ${total} Entries`;
-            pageDisplay.textContent = `Page ${currentPage} / ${totalPages}`;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
-            nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+            ui.info.textContent = 'Showing ' + Math.min(total, start + 1) + ' to ' + Math.min(total, end) + ' of ' + total + ' Entries';
+            ui.pageDisplay.textContent = 'Page ' + currentPage + ' / ' + totalPages;
+            ui.prevBtn.disabled = currentPage <= 1;
+            ui.nextBtn.disabled = currentPage >= totalPages;
+            ui.prevBtn.classList.toggle('opacity-50', ui.prevBtn.disabled);
+            ui.nextBtn.classList.toggle('opacity-50', ui.nextBtn.disabled);
         }
 
-        perPageSelect.addEventListener('change', function(){
-            perPage = parseInt(perPageSelect.value,10) || 10;
+        ui.perPageSelect.addEventListener('change', function () {
+            perPage = parseInt(ui.perPageSelect.value, 10) || 10;
             currentPage = 1;
             render();
         });
 
-        prevBtn.addEventListener('click', function(){ if (currentPage > 1) { currentPage--; render(); } });
-        nextBtn.addEventListener('click', function(){ const totalPages = Math.max(1, Math.ceil(allRows.length / perPage)); if (currentPage < totalPages) { currentPage++; render(); } });
+        ui.prevBtn.addEventListener('click', function () { if (currentPage > 1) { currentPage--; render(); } });
+        ui.nextBtn.addEventListener('click', function () { const totalPages = Math.max(1, Math.ceil(allRows.length / perPage)); if (currentPage < totalPages) { currentPage++; render(); } });
 
         // initial render
         render();

@@ -44,7 +44,9 @@ class DashboardController extends Controller
         // 🔹 Create the Request
         RequestModel::create([
             'student_id' => $student->id,
+            // For encoder dashboard single-entry flow, keep document_type_id for legacy usage
             'document_type_id' => $documentType->id,
+            'document_type_ids' => [$documentType->id],
             'encoded_by' => Auth::id(),
             'status' => 'Pending',
             'encoded_at' => now(),

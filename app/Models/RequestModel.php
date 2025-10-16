@@ -15,6 +15,7 @@ class RequestModel extends Model
         'student_id',
         'representative_id',
         'document_type_id',
+        'document_type_ids',
         'authorization_id',
         'status',
         'encoded_by',
@@ -29,6 +30,32 @@ class RequestModel extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    /**
+     * Casts
+     * - document_type_ids stored as JSON in DB, cast to array in PHP
+     */
+    protected $casts = [
+        'document_type_ids' => 'array',
+        'estimated_release_date' => 'datetime',
+        'encoded_at' => 'datetime',
+        'verified_at' => 'datetime',
+    ];
+
+    /**
+     * Helper to get DocumentType models for this request.
+     * Returns a Collection of DocumentType instances based on document_type_ids (if present)
+     * Falls back to document_type_id when document_type_ids is empty for backwards compatibility.
+     */
+    public function documentTypes()
+    {
+        $ids = $this->document_type_ids ?? [];
+        if (empty($ids) && $this->document_type_id) {
+            $ids = [$this->document_type_id];
+        }
+
+        return \App\Models\DocumentType::whereIn('id', $ids)->get();
     }
 
     public function representative()

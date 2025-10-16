@@ -69,12 +69,21 @@ class RequestController extends Controller
         $maxProcessingDays = max($processingDaysList);
         $releaseDate = $this->calculateReleaseDate(now(), $maxProcessingDays);
 
-        // Cutoff logic: if any document type exceeds 10 requests for the release date, add 1 day for all
+        // Cutoff logic: if total requests for any selected document type exceeds 10 for the release date, add 1 day for all
         $cutoffExceeded = false;
         foreach ($documentTypeIds as $docTypeId) {
-            $count = RequestModel::where('document_type_id', $docTypeId)
+            // Count legacy rows with single document_type_id
+            $countLegacy = RequestModel::where('document_type_id', $docTypeId)
                 ->whereDate('estimated_release_date', $releaseDate->format('Y-m-d'))
                 ->count();
+
+            // Count new rows where document_type_ids (JSON array) contains this id
+            $countJson = RequestModel::whereJsonContains('document_type_ids', $docTypeId)
+                ->whereDate('estimated_release_date', $releaseDate->format('Y-m-d'))
+                ->count();
+
+            $count = $countLegacy + $countJson;
+
             if ($count >= 10) {
                 $cutoffExceeded = true;
                 break;
@@ -90,20 +99,22 @@ class RequestController extends Controller
             } while ($releaseDate->isWeekend() || in_array($releaseDate->format('Y-m-d'), $holidays));
         }
 
-        // Create a request for each document type, all with the (possibly adjusted) release date
-        foreach ($documentTypeIds as $docTypeId) {
-            $data = [
-                'student_id' => $student->id,
-                'document_type_id' => $docTypeId,
-                'representative_id' => $validated['representative_id'] ?? null,
-                'authorization_id' => $validated['authorization_id'] ?? null,
-                'encoded_by' => auth()->id(),
-                'status' => 'Pending',
-                'encoded_at' => now(),
-                'estimated_release_date' => $releaseDate,
-            ];
-            RequestModel::create($data);
-        }
+        // Create a single Request row that stores all selected document type ids.
+        // For backwards compatibility we leave document_type_id NULL and populate document_type_ids JSON.
+        $data = [
+            'student_id' => $student->id,
+            // keep legacy column populated with first selected id for DB compatibility
+            'document_type_id' => count($documentTypeIds) ? $documentTypeIds[0] : null,
+            'document_type_ids' => $documentTypeIds,
+            'representative_id' => $validated['representative_id'] ?? null,
+            'authorization_id' => $validated['authorization_id'] ?? null,
+            'encoded_by' => auth()->id(),
+            'status' => 'Pending',
+            'encoded_at' => now(),
+            'estimated_release_date' => $releaseDate,
+        ];
+
+        RequestModel::create($data);
 
         return redirect()->route('requests.index')->with('success', 'Requests recorded successfully!');
     }
