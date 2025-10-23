@@ -55,21 +55,25 @@
             {{-- Submit --}}
             <button type="submit"
                 class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">
-                Sign In
+                Login
             </button>
         </form>
 
-        {{-- Divider --}}
         <div class="flex items-center justify-center">
             <div class="border-t w-1/3 border-gray-200"></div>
-            <span class="mx-2 text-xs text-gray-400">Credits</span>
+            <span class="mx-2 text-xs text-gray-400">Developed by</span>
             <div class="border-t w-1/3 border-gray-200"></div>
         </div>
+<p class="text-center text-xs text-gray-400 mt-6 flex items-center justify-center gap-2">
+    <img src="{{ asset('logos/github-mark.svg') }}" alt="GitHub Logo" class="w-4 h-4 inline-block">
+    <a href="https://github.com/badz-sng" class="text-gray-400 hover:underline">Emmanuel Sunga</a>
+</p>
 
         {{-- Footer --}}
     <p class="text-center text-xs text-gray-400 mt-6">
             © {{ date('Y') }} FilePilot. All rights reserved.
         </p>
+
     </div>
 </body>
 </html>
