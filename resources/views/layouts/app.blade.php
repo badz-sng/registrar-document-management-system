@@ -22,7 +22,7 @@
                 <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div id="user-menu" class="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg hidden z-10">
-                <a href="/" class="block px-4 py-2 hover:bg-gray-100">Homepage</a>
+                <a href="/" class="block px-4 py-2 hover:bg-gray-100">{{ ucfirst(auth()->user()->role) }} Homepage</a>
                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-gray-100">Account</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -87,12 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const perPageSelect = document.createElement('select');
         perPageSelect.className = 'border rounded px-2 py-1 text-sm';
-        [10, 20, 50].forEach(function (n) {
+        [5 ,10, 20, 50].forEach(function (n) {
             const opt = document.createElement('option');
             opt.value = n; opt.textContent = n + ' rows';
             perPageSelect.appendChild(opt);
         });
-        perPageSelect.value = table.dataset.rowsDefault || 10;
+        perPageSelect.value = table.dataset.rowsDefault || 5;
 
         const info = document.createElement('div');
         info.className = 'text-sm text-gray-700';

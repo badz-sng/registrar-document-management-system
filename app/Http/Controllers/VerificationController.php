@@ -9,7 +9,7 @@ class VerificationController extends Controller
     public function verify(RequestModel $request)
     {
         $request->update([
-            'status' => 'verified',
+            'status' => 'for_release',
             'verifier_id' => auth()->id(),
             'verified_at' => now(),
         ]);

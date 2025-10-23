@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LoginResponse;
 
@@ -42,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
                     return redirect()->intended($redirect);
                 }
             };
+        });
+
+        Gate::define('create-user', function ($user) {
+            return $user->role === \App\Models\User::ROLE_ADMIN;
         });
     }
 }

@@ -62,15 +62,9 @@
         {{-- Divider --}}
         <div class="flex items-center justify-center">
             <div class="border-t w-1/3 border-gray-200"></div>
-            <span class="mx-2 text-xs text-gray-400">or</span>
+            <span class="mx-2 text-xs text-gray-400">Credits</span>
             <div class="border-t w-1/3 border-gray-200"></div>
         </div>
-
-        {{-- Register link --}}
-    <p class="text-center text-sm text-gray-600">
-            Don’t have an account?
-            <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Register</a>
-        </p>
 
         {{-- Footer --}}
     <p class="text-center text-xs text-gray-400 mt-6">

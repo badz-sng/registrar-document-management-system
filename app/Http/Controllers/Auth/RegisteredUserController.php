@@ -29,28 +29,41 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Validate incoming registration request. Role validation uses the centralized
-        // `User::ROLES` array so allowed roles are kept in one place (see App\Models\User).
-        // This prevents drift between the frontend select options, controller validation
-        // and any other code that references allowed roles.
+        // if admin registering others, skip auto-login
+    if (auth()->check() && auth()->user()->role === 'admin') {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:'.implode(',', User::ROLES)],
+            'role' => ['required', 'string'],
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->input('role'),
+            'role' => $request->role,
         ]);
 
-        event(new Registered($user));
+        return back()->with('success', 'User registered successfully!');
+    }
 
-        Auth::login($user);
+    // Default Breeze registration (for guests)
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        return redirect('/');
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 'user', // or default role
+    ]);
+
+    Auth::login($user);
+
+    return redirect(RouteServiceProvider::HOME);
     }
 }
