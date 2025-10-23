@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('request_id')->constrained('requests')->onDelete('cascade');
             $table->foreignId('document_type_id')->constrained('document_types')->onDelete('cascade');
             $table->boolean('is_prepared')->default(false);
+            $table->boolean('is_verified')->default(false);
             $table->timestamps();
         });
     }

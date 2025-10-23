@@ -7,27 +7,32 @@
     <thead class="bg-gray-100">
         <tr>
             <th class="p-2 text-left">Student</th>
-            <th class="p-2">Document</th>
-            <th class="p-2">Status</th>
-            <th class="p-2">Action</th>
+            <th class="p-2 text-left">Documents</th>
+            <th class="p-2 text-center">Status</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($requests as $r)
             <tr class="border-t">
-                <td class="p-2">{{ $r->student_name }}</td>
-                <td class="p-2">{{ $r->document_type }}</td>
-                <td class="p-2">{{ $r->status }}</td>
+                <td class="p-2">{{ $r->student->name ?? 'N/A' }}</td>
                 <td class="p-2">
-                    <form method="POST" action="{{ route('verifier.update.status', $r->id) }}">
-                        @csrf
-                        <select name="status" class="border rounded p-1">
-                            <option value="For Revision">For Revision</option>
-                            <option value="For Release">For Release</option>
-                        </select>
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">Update</button>
-                    </form>
+                    <ul>
+                        @foreach ($r->documents as $doc)
+                            <li class="flex items-center justify-between border-b py-1">
+                                <span>{{ $doc->name }}</span>
+                                <form method="POST" action="{{ route('verifier.toggleVerification', [$r->id, $doc->id]) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="px-2 py-1 rounded text-xs
+                                            {{ $doc->pivot->is_verified ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700' }}">
+                                        {{ $doc->pivot->is_verified ? 'Verified' : 'Mark Verified' }}
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
                 </td>
+                <td class="p-2 text-center capitalize">{{ str_replace('_', ' ', $r->status) }}</td>
             </tr>
         @endforeach
     </tbody>

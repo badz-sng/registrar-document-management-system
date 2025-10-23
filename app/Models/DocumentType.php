@@ -18,7 +18,7 @@ class DocumentType extends Model
             'request_document',
             'document_type_id',
             'request_id'
-        )->withPivot('is_prepared')
+        )->withPivot(['is_prepared', 'is_verified'])
         ->withTimestamps();
     }
 
