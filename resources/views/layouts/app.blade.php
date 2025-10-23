@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen">
-    <nav class="bg-white shadow p-4 flex justify-between items-center">
+    <nav class="sticky top-0 z-50 bg-white shadow p-4 flex justify-between items-center">
     <!-- Dark mode toggle removed -->
         <a href="/">
     <div class="font-bold text-xl">
