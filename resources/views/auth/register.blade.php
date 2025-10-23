@@ -53,11 +53,10 @@
             <label for="role" class="block text-sm font-medium text-gray-700">Select Role</label>
             <select name="role" id="role" required
                     class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                <option value="encoder">Encoder</option>
-                <option value="processor">Processor</option>
-                <option value="verifier">Verifier</option>
-                <option value="admin">Admin</option>
-                <option value="retriever">Retriever</option>
+                {{-- Options are rendered from \App\Models\User::ROLES so roles are centralized in the model --}}
+                @foreach(\App\Models\User::ROLES as $r)
+                    <option value="{{ $r }}">{{ ucfirst($r) }}</option>
+                @endforeach
             </select>
         </div>
 

@@ -18,17 +18,20 @@ use App\Http\Controllers\RequestController;
 | Home / Role-based redirection
 |--------------------------------------------------------------------------
 */
+// Home route: redirects to role-specific dashboard. We use the centralized
+// User::ROLE_* constants here so the redirect targets stay in sync with the
+// roles defined in the User model.
 Route::get('/', function () {
     if (!auth()->check()) {
         return redirect('/login');
     }
 
     return match (auth()->user()->role) {
-        'encoder' => redirect()->route('encoder.dashboard'),
-        'processor' => redirect()->route('processor.dashboard'),
-        'verifier' => redirect()->route('verifier.dashboard'),
-        'admin' => redirect()->route('admin.dashboard'),
-        'retriever' => redirect()->route('retriever.dashboard'),
+        \App\Models\User::ROLE_ENCODER => redirect()->route('encoder.dashboard'),
+        \App\Models\User::ROLE_PROCESSOR => redirect()->route('processor.dashboard'),
+        \App\Models\User::ROLE_VERIFIER => redirect()->route('verifier.dashboard'),
+        \App\Models\User::ROLE_ADMIN => redirect()->route('admin.dashboard'),
+        \App\Models\User::ROLE_RETRIEVER => redirect()->route('retriever.dashboard'),
         default => redirect('/login'),
     };
 });
@@ -38,7 +41,10 @@ Route::get('/', function () {
 | ADMIN DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+// Route groups protected by the RoleMiddleware. The middleware signature expects
+// a string like 'role:encoder', so we assemble that string from the centralized
+// constants above. This keeps the route protection tied to the single source of truth.
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_ADMIN])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 });
 
@@ -47,7 +53,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 | ENCODER DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:encoder'])->prefix('encoder')->group(function () {
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_ENCODER])->prefix('encoder')->group(function () {
     Route::get('/dashboard', [EncoderDashboard::class, 'index'])->name('encoder.dashboard');
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
@@ -59,7 +65,7 @@ Route::middleware(['auth', 'role:encoder'])->prefix('encoder')->group(function (
 | PROCESSOR DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:processor'])->prefix('processor')->group(function () {
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_PROCESSOR])->prefix('processor')->group(function () {
     Route::get('/dashboard', [ProcessorDashboard::class, 'index'])->name('processor.dashboard');
 });
 
@@ -68,7 +74,7 @@ Route::middleware(['auth', 'role:processor'])->prefix('processor')->group(functi
 | VERIFIER DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:verifier'])->prefix('verifier')->group(function () {
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_VERIFIER])->prefix('verifier')->group(function () {
     Route::get('/dashboard', [VerifierDashboard::class, 'index'])->name('verifier.dashboard');
 });
 
@@ -77,8 +83,11 @@ Route::middleware(['auth', 'role:verifier'])->prefix('verifier')->group(function
 | RETRIEVER DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:retriever'])->prefix('retriever')->group(function () {
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_RETRIEVER])->prefix('retriever')->group(function () {
     Route::get('/dashboard', [RetrieverDashboard::class, 'index'])->name('retriever.dashboard');
+    // Allow retrievers to mark a request as retrieved. The controller enforces
+    // that only the assigned retriever (or no retriever) can perform this action.
+    Route::post('/requests/{id}/retrieve', [RetrieverDashboard::class, 'updateStatus'])->name('retriever.update.status');
 });
 
 /*
@@ -115,11 +124,11 @@ require __DIR__.'/auth.php';
 Route::fallback(function () {
     if (auth()->check()) {
         return match (auth()->user()->role) {
-            'encoder' => redirect()->route('encoder.dashboard'),
-            'processor' => redirect()->route('processor.dashboard'),
-            'verifier' => redirect()->route('verifier.dashboard'),
-            'admin' => redirect()->route('admin.dashboard'),
-            'retriever' => redirect()->route('retriever.dashboard'),
+            \App\Models\User::ROLE_ENCODER => redirect()->route('encoder.dashboard'),
+            \App\Models\User::ROLE_PROCESSOR => redirect()->route('processor.dashboard'),
+            \App\Models\User::ROLE_VERIFIER => redirect()->route('verifier.dashboard'),
+            \App\Models\User::ROLE_ADMIN => redirect()->route('admin.dashboard'),
+            \App\Models\User::ROLE_RETRIEVER => redirect()->route('retriever.dashboard'),
             default => redirect('/login'),
         };
     }

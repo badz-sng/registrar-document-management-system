@@ -29,16 +29,22 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate incoming registration request. Role validation uses the centralized
+        // `User::ROLES` array so allowed roles are kept in one place (see App\Models\User).
+        // This prevents drift between the frontend select options, controller validation
+        // and any other code that references allowed roles.
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'in:'.implode(',', User::ROLES)],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->input('role'),
         ]);
 
         event(new Registered($user));

@@ -20,6 +20,9 @@ class DocumentTypeSeeder extends Seeder
             'Certificate of Enrollment',
             'Certificate of Graduation',
             'Honorable Dismissal',
+            'Certificate of Ranking',
+            'Certificate of Completion',
+            'Certificate of Latin Honors'
         ];
 
         foreach ($types as $type) {

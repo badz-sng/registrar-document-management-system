@@ -12,6 +12,32 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Centralized role constants — use these everywhere instead of hard-coded strings.
+    // Rationale: defining roles here prevents typos across controllers, views and middleware
+    // and makes it easy to change role identifiers in one place.
+    // Usage examples:
+    // - Validate input: ['role' => ['required', 'in:'.implode(',', User::ROLES)]]
+    // - Compare: if ($user->role === User::ROLE_ENCODER) { ... }
+    // - Route middleware: Route::middleware(['auth', 'role:'.User::ROLE_ENCODER])...
+    // Note: existing database enum (migration) still lists the same values —
+    // if you later change these constants you should also add a migration to sync the DB.
+    
+    // Centralized role constants — use these everywhere instead of hard-coded strings
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_ENCODER = 'encoder';
+    public const ROLE_PROCESSOR = 'processor';
+    public const ROLE_VERIFIER = 'verifier';
+    public const ROLE_RETRIEVER = 'retriever';
+
+    /** @var array<int, string> */
+    public const ROLES = [
+        self::ROLE_ADMIN,
+        self::ROLE_ENCODER,
+        self::ROLE_PROCESSOR,
+        self::ROLE_VERIFIER,
+        self::ROLE_RETRIEVER,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

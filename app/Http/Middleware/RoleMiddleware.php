@@ -18,6 +18,10 @@ class RoleMiddleware
             return redirect('/login');
         }
 
+        // The middleware receives a single role string (e.g., 'encoder').
+        // If you want to allow multiple roles on a single route (e.g., 'encoder,admin'),
+        // you could split $role by ',' and check in_array(Auth::user()->role, $allowedRoles).
+        // For now we enforce strict equality to keep behavior explicit.
         if (Auth::user()->role !== $role) {
             abort(403, 'Unauthorized.');
         }

@@ -10,15 +10,30 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('retriever_id', auth()->id())->get();
+        // $requests = RequestModel::where('retriever_id', auth()->id())->get();
+        $requests = RequestModel::with('student')->get();
         return view('retriever.dashboard', compact('requests'));
     }
 
     public function updateStatus(Request $request, $id)
     {
+        // Find the request and ensure this authenticated user is allowed to mark it.
         $req = RequestModel::findOrFail($id);
-        $req->update(['status' => 'Retrieved']);
 
-        return back()->with('success', 'Envelope marked as Retrieved.');
+        // Only allow the assigned retriever to change the status, or allow if no
+        // retriever is assigned yet (so they can pick it up). This prevents users
+        // from toggling arbitrary requests.
+        if ($req->retriever_id && $req->retriever_id !== auth()->id()) {
+            abort(403, 'Unauthorized to update this request.');
+        }
+
+        // Use a consistent, lowercase status token for storage. UI can render
+        // human-readable versions (e.g., ucfirst) as needed.
+        $req->update([
+            'status' => 'retrieved',
+            'retriever_id' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Envelope marked as retrieved.');
     }
 }

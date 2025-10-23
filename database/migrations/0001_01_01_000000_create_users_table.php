@@ -18,7 +18,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'encoder', 'retriever', 'processor', 'verifier'])->default('encoder');
-            $table->string('department')->default('Registrar\'s Office');
+            // Avoid using an unescaped apostrophe in the default value because
+            // it can produce invalid SQL during tests/migration runs on some
+            // MySQL/MariaDB setups. Use a safe default without apostrophes.
+            $table->string('department')->default('Registrar Office');
             $table->rememberToken();
             $table->timestamps();
         }); 

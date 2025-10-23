@@ -24,13 +24,18 @@ class AppServiceProvider extends ServiceProvider
             return new class implements LoginResponse {
                 public function toResponse($request)
                 {
-                    $role = auth()->user()->role ?? 'encoder';
+                    // Determine the redirect after login based on the user's role.
+                    // We use User role constants so this logic stays in sync with other
+                    // role checks and with the registration validation.
+                    // If you add new roles, extend both User::ROLES and the mapping below.
+                    $role = auth()->user()->role ?? \App\Models\User::ROLE_ENCODER;
 
                     $redirect = match ($role) {
-                        'encoder' => route('requests.create'),
-                        'processor' => route('requests.index', ['status' => 'in_process']),
-                        'verifier' => route('requests.verify.index'),
-                        'admin' => route('dashboard'),
+                        \App\Models\User::ROLE_ENCODER => route('requests.create'),
+                        \App\Models\User::ROLE_PROCESSOR => route('requests.index', ['status' => 'in_process']),
+                        \App\Models\User::ROLE_VERIFIER => route('requests.verify.index'),
+                        \App\Models\User::ROLE_ADMIN => route('dashboard'),
+                        \App\Models\User::ROLE_RETRIEVER => route('retriever.dashboard'),
                         default => route('dashboard'),
                     };
 
