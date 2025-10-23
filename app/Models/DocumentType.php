@@ -13,7 +13,14 @@ class DocumentType extends Model
 
     public function requests()
     {
-        return $this->hasMany(RequestModel::class);
+        return $this->belongsToMany(
+            RequestModel::class,
+            'request_document',
+            'document_type_id',
+            'request_id'
+        )->withPivot('is_prepared')
+        ->withTimestamps();
     }
+
 }
 

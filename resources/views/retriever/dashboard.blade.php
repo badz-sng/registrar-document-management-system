@@ -18,7 +18,7 @@
                 <td class="p-2">{{ $r->student->name ?? 'Unknown Student' }}</td>
                 <td class="p-2">
                     @php
-                        $documents = $r->documentTypes();
+                        $documents = $r->documentTypes;
                     @endphp
 
                     @if ($documents->isEmpty())

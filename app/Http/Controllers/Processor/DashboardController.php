@@ -10,7 +10,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $requests = RequestModel::where('processor_id', auth()->id())->get();
+        // Only show requests that have been retrieved
+        $requests = \App\Models\RequestModel::where('status', 'retrieved')
+            ->with(['student', 'documentTypes'])
+            ->get();
+
         return view('processor.dashboard', compact('requests'));
     }
 
@@ -20,5 +24,19 @@ class DashboardController extends Controller
         $req->update(['status' => $request->status]);
 
         return back()->with('success', 'Status updated successfully.');
+    }
+
+    public function markAsPrepared($id)
+    {
+    $request = \App\Models\Request::findOrFail($id);
+
+    if ($request->status !== 'retrieved') {
+        return back()->with('error', 'Only retrieved requests can be marked as prepared.');
+    }
+
+    $request->status = 'prepared';
+    $request->save();
+
+    return back()->with('success', 'Request marked as prepared successfully.');
     }
 }

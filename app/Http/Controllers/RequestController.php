@@ -136,7 +136,6 @@ class RequestController extends Controller
         // For backwards compatibility we leave document_type_id NULL and populate document_type_ids JSON.
         $data = [
             'student_id' => $student->id,
-            // keep legacy column populated with first selected id for DB compatibility
             'document_type_id' => count($documentTypeIds) ? $documentTypeIds[0] : null,
             'document_type_ids' => $documentTypeIds,
             'representative_id' => $validated['representative_id'] ?? null,
@@ -148,7 +147,8 @@ class RequestController extends Controller
             'estimated_release_date' => $releaseDate,
         ];
 
-        RequestModel::create($data);
+        $requestModel = RequestModel::create($data);
+        $requestModel->documentTypes()->attach($documentTypeIds);
 
         return redirect()->route('requests.index')->with('success', 'Requests recorded successfully!');
     }
@@ -209,4 +209,30 @@ class RequestController extends Controller
 
         return $date;
     }
+
+    public function togglePrepared(RequestModel $request, DocumentType $document)
+    {
+    // Ensure pivot relation exists
+    $pivotRecord = $request->documentTypes()->where('document_type_id', $document->id)->first();
+
+    if (!$pivotRecord || !$pivotRecord->pivot) {
+        return back()->with('error', 'Pivot record not found.');
+    }
+
+    // Flip the is_prepared field
+    $isPrepared = !$pivotRecord->pivot->is_prepared;
+    $pivotRecord->pivot->is_prepared = $isPrepared;
+    $pivotRecord->pivot->save();
+
+    // Check if all documents for this request are prepared
+    $allPrepared = $request->documentTypes()->wherePivot('is_prepared', false)->count() === 0;
+
+    // Update the main request status if all prepared
+    if ($allPrepared && $request->status !== 'ready_for_verification') {
+        $request->update(['status' => 'ready_for_verification']);
+    }
+
+    return back()->with('success', 'Document preparation status updated!');
+    }
+
 }

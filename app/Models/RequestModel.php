@@ -51,12 +51,13 @@ class RequestModel extends Model
      */
     public function documentTypes()
     {
-        $ids = $this->document_type_ids ?? [];
-        if (empty($ids) && $this->document_type_id) {
-            $ids = [$this->document_type_id];
-        }
-
-        return \App\Models\DocumentType::whereIn('id', $ids)->get();
+        return $this->belongsToMany(
+            DocumentType::class,
+            'request_document',     // Pivot table
+            'request_id',           // Foreign key on pivot for RequestModel
+            'document_type_id'      // Foreign key on pivot for DocumentType
+        )->withPivot('is_prepared')
+        ->withTimestamps();
     }
 
     public function representative()

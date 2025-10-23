@@ -35,6 +35,7 @@ class RetrieverCanMarkRetrievedTest extends TestCase
             'status' => 'pending',
             'encoded_by' => $encoder->id,
         ]);
+        $requestModel->documentTypes()->sync($documentTypeIds);
 
         $response = $this->actingAs($retriever)->post(route('retriever.update.status', $requestModel->id));
 

@@ -66,9 +66,18 @@ Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_ENCODER])->prefix('enc
 | PROCESSOR DASHBOARD
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_PROCESSOR])->prefix('processor')->group(function () {
-    Route::get('/dashboard', [ProcessorDashboard::class, 'index'])->name('processor.dashboard');
-});
+Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_PROCESSOR])
+    ->prefix('processor')
+    ->group(function () {
+        Route::get('/dashboard', [ProcessorDashboard::class, 'index'])
+            ->name('processor.dashboard');
+        Route::post('/requests/{id}/mark-prepared', [ProcessorDashboard::class, 'markAsPrepared'])
+            ->name('processor.markPrepared');
+        Route::post('/requests/{request}/documents/{document}/toggle', [RequestController::class, 'togglePrepared'])
+            ->name('requests.documents.toggle');
+
+    });
+
 
 /*
 |--------------------------------------------------------------------------
