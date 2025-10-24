@@ -45,4 +45,35 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('users', 'stats'));
     }
+
+   public function forRelease()
+    {
+        $requests = \App\Models\RequestModel::with(['student', 'documents'])
+            ->whereIn('status', ['for_signature', 'for_release'])
+            ->get();
+
+        return view('admin.for-release', compact('requests'));
+    }
+
+    public function toggleSigned($requestId, $documentId)
+    {
+        $requestModel = \App\Models\RequestModel::findOrFail($requestId);
+        $pivot = $requestModel->documents()->where('document_type_id', $documentId)->first();
+
+        if ($pivot) {
+            $current = $pivot->pivot->is_signed;
+            $requestModel->documents()->updateExistingPivot($documentId, [
+                'is_signed' => !$current,
+            ]);
+
+            // Check if all documents are signed
+            $allSigned = $requestModel->documents->every(fn($doc) => $doc->pivot->is_signed);
+
+            if ($allSigned) {
+                $requestModel->update(['status' => 'for_release']);
+            }
+        }
+
+        return back()->with('success', 'Document signing status updated.');
+    }
 }

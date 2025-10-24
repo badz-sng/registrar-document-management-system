@@ -45,9 +45,19 @@ Route::get('/', function () {
 // Route groups protected by the RoleMiddleware. The middleware signature expects
 // a string like 'role:encoder', so we assemble that string from the centralized
 // constants above. This keeps the route protection tied to the single source of truth.
-Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_ADMIN])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
-});
+Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN])
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+
+        // Separate pages
+        Route::get('/users', [AdminDashboard::class, 'users'])->name('admin.users.index');
+        Route::get('/for-release', [AdminDashboard::class, 'forRelease'])->name('admin.forRelease');
+
+        // Toggle signed status for documents
+        Route::patch('/for-release/{requestId}/toggle-signed/{documentId}', [AdminDashboard::class, 'toggleSigned'])
+            ->name('admin.toggleSigned');
+    });
 
 /*
 |--------------------------------------------------------------------------

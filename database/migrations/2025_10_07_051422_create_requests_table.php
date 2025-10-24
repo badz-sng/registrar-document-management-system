@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('authorization_id')->nullable()->constrained('authorizations')->onDelete('set null');
             // Include 'retrieved' as a valid request status so retrievers can mark
             // requests as retrieved. Keep existing tokens for other flows.
-            $table->enum('status', ['pending', 'in_process', 'ready_for_verification', 'verified', 'released', 'retrieved'])->default('pending');
+            $table->enum('status', ['pending', 'in_process', 'ready_for_verification', 'verified', 'released', 'retrieved','for_release'])->default('pending');
             $table->foreignId('encoded_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('retriever_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('set null');

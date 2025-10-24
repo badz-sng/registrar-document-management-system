@@ -56,7 +56,7 @@ class RequestModel extends Model
             'request_document',     // Pivot table
             'request_id',           // Foreign key on pivot for RequestModel
             'document_type_id'      // Foreign key on pivot for DocumentType
-        )->withPivot(['is_prepared','is_verified'])
+        )->withPivot(['is_prepared','is_verified', 'is_signed'])
         ->withTimestamps();
     }
 

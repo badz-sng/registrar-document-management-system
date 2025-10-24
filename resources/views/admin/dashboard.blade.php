@@ -12,10 +12,31 @@
         </div>
     @endforeach
 </div>
+<div class="flex items-center justify-center">
+    <div class="border-t w-1/3 border-gray-200"></div>
+        <span class="mx-2 text-xs text-gray-400">Change status of Users and Requests</span>
+    <div class="border-t w-1/3 border-gray-200"></div>
+</div>
+{{-- New Section: Buttons for dedicated pages --}}
+<div class="mt-6 flex gap-4">
+    <a href="{{ route('admin.users.index') }}" 
+       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow">
+        Manage Users
+    </a>
 
-
+    <a href="{{ route('admin.forRelease') }}" 
+       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow">
+        For Signature / Release
+    </a>
+</div>
+    <br>
+<div class="flex items-center justify-center">
+    <div class="border-t w-1/3 border-gray-200"></div>
+        <span class="mx-2 text-xs text-gray-400">Overview of System Users and Roles</span>
+    <div class="border-t w-1/3 border-gray-200"></div>
+</div>
 <h2 class="text-xl font-semibold mb-2">User Management</h2>
-<table class="w-full bg-white rounded shadow">
+<table class="w-full bg-white rounded shadow mb-8">
     <thead class="bg-gray-100">
         <tr>
             <th class="p-2 text-left">Name</th>
