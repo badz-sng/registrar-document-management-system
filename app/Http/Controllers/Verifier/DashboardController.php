@@ -10,34 +10,40 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Load all requests with related documents
-        $requests = RequestModel::with(['student', 'documents'])->get();
+        // Show all requests that are ready for verification
+        $requests = RequestModel::with(['student', 'documentTypes'])
+            ->where('status', 'ready_for_verification')
+            ->get();
 
         return view('verifier.dashboard', compact('requests'));
     }
 
-    public function toggleVerification(Request $request, $requestId, $documentId)
+    public function toggleVerification($requestId, $documentId)
     {
-        $req = RequestModel::findOrFail($requestId);
+        $requestModel = RequestModel::findOrFail($requestId);
 
-        // Find the pivot record for that document
-        $pivot = $req->documents()->where('document_type_id', $documentId)->first();
+        // use documentTypes() instead of document()
+        $doc = $requestModel->documentTypes()->where('document_type_id', $documentId)->first();
 
-        if (!$pivot) {
-            return back()->with('error', 'Document not found for this request.');
+        if ($doc) {
+            $current = $doc->pivot->is_verified;
+
+            // update the pivot record correctly
+            $requestModel->documentTypes()->updateExistingPivot($documentId, [
+                'is_verified' => !$current,
+            ]);
+
+            // reload the relationship to get fresh data
+            $requestModel->load('documentTypes');
+
+            // check if all are verified
+            $allVerified = $requestModel->documentTypes->every(fn($d) => $d->pivot->is_verified);
+
+            if ($allVerified) {
+                $requestModel->update(['status' => 'verified']);
+            }
         }
 
-        // Toggle the is_verified flag
-        $current = $pivot->pivot->is_verified;
-        $req->documents()->updateExistingPivot($documentId, ['is_verified' => !$current]);
-
-        // Check if all documents are verified
-        $allVerified = $req->documents->every(fn($doc) => $doc->pivot->is_verified);
-
-        if ($allVerified) {
-            $req->update(['status' => 'for_release']);
-        }
-
-        return back()->with('success', 'Verification updated successfully.');
+        return back()->with('success', 'Document verification updated.');
     }
 }

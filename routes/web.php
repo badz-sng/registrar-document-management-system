@@ -86,6 +86,11 @@ Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_PROCESSOR])
 */
 Route::middleware(['auth', 'role:'.\App\Models\User::ROLE_VERIFIER])->prefix('verifier')->group(function () {
     Route::get('/dashboard', [VerifierDashboard::class, 'index'])->name('verifier.dashboard');
+    Route::prefix('verifier')->middleware(['auth', 'role:verifier'])->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Verifier\DashboardController::class, 'index'])->name('verifier.dashboard');
+    Route::post('/toggle/{requestId}/{documentId}', [App\Http\Controllers\Verifier\DashboardController::class, 'toggleVerification'])->name('verifier.toggle');
+});
+
 });
 
 /*

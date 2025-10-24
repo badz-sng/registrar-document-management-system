@@ -17,25 +17,25 @@ class DashboardController extends Controller
                 'value' => RequestModel::count(),
                 'description' => 'All requests submitted by students.',
             ],
-            'in_process' => [
-                'value' => RequestModel::whereIn('status', ['status', 'in_process'])->count(),
-                'description' => 'Requests currently being processed by staff.',
-            ],
+            // 'in_process' => [
+            //     'value' => RequestModel::whereIn('status', ['status', 'in_process'])->count(),
+            //     'description' => 'Requests currently being processed by staff.',
+            // ],
             'pending' => [
                 'value' => RequestModel::where('status', 'pending')->count(),
-                'description' => 'Requests waiting to be reviewed or assigned.',
+                'description' => 'Evelopes that are for retrieval',
             ],
             'for_processing' => [
                 'value' => RequestModel::where('status', 'Retrieved')->count(),
-                'description' => 'Requests ready to be processed by the next role.',
+                'description' => 'Requests ready to be processed by the processor.',
             ],
             'for_verifying' => [
                 'value' => RequestModel::where('status', 'ready_for_verification')->count(),
-                'description' => 'Requests pending verification before release.',
+                'description' => 'Requests pending verification before signature.',
             ],
-            'for_release' => [
-                'value' => RequestModel::where('status', 'for_release')->count(),
-                'description' => 'Requests that are approved and awaiting pickup.',
+            'for signature' => [
+                'value' => RequestModel::where('status', 'verified')->count(),
+                'description' => 'Verified Requests, up for signature.',
             ],
             'released' => [
                 'value' => RequestModel::where('status', 'released')->count(),
