@@ -9,6 +9,7 @@
             <th class="p-2 text-left">Name</th>
             <th class="p-2 text-left">Email</th>
             <th class="p-2 text-left">Role</th>
+            <th class="p-2 text-left">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -17,6 +18,7 @@
                 <td class="p-2">{{ $user->name }}</td>
                 <td class="p-2">{{ $user->email }}</td>
                 <td class="p-2 capitalize">{{ $user->role }}</td>
+                <td class="p-2 capitalize"><button type="button" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button></td>
             </tr>
         @endforeach
     </tbody>

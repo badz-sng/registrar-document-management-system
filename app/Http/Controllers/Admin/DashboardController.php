@@ -76,4 +76,10 @@ class DashboardController extends Controller
 
         return back()->with('success', 'Document signing status updated.');
     }
+
+    public function users()
+    {
+        $users = User::all();
+        return view('admin.users', compact('users'));
+    }
 }
