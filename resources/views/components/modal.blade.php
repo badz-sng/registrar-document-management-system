@@ -73,6 +73,19 @@ $maxWidth = [
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
     >
-        {{ $slot }}
+        <div class="p-4 border-b bg-white flex justify-between items-center">
+            <h3 id="modal-title" class="text-lg font-semibold text-gray-900">{{ $title }}</h3>
+            <button @click="show = false" class="text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="p-6 bg-white">
+            {{ $slot }}
+        </div>
+
+        <div class="p-4 border-t flex justify-end bg-white">
+            <button @click="show = false" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Close</button>
+        </div>
     </div>
 </div>

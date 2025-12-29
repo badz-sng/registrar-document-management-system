@@ -79,7 +79,8 @@ class DashboardController extends Controller
 
     public function users()
     {
-        $users = User::all();
+        // Eager-load the latest login entry for each user so we can show it in the modal
+        $users = User::with('latestLogin')->get();
         return view('admin.users', compact('users'));
     }
 }

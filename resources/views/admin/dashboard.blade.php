@@ -35,7 +35,7 @@
         <span class="mx-2 text-xs text-gray-400">Overview of System Users and Roles</span>
     <div class="border-t w-1/3 border-gray-200"></div>
 </div>
-<h2 class="text-xl font-semibold mb-2">User Management</h2>
+<h2 class="text-xl font-semibold mb-2">System Users</h2>
 <table class="w-full bg-white rounded shadow mb-8">
     <thead class="bg-gray-100">
         <tr>

@@ -109,4 +109,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    /**
+     * Login history relationship
+     */
+    public function loginHistories()
+    {
+        return $this->hasMany(LoginHistory::class, 'user_id');
+    }
+
+    /**
+     * Latest login (hasOne latestOfMany)
+     */
+    public function latestLogin()
+    {
+        return $this->hasOne(LoginHistory::class)->latestOfMany();
+    }
 }
