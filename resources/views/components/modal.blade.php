@@ -35,6 +35,8 @@ $maxWidth = [
         if (value) {
             document.body.classList.add('overflow-y-hidden');
             {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+            // Dispatch a global event so consumers can react when this modal opens
+            document.dispatchEvent(new CustomEvent('modal-opened', { detail: { name: '{{ $name }}' } }));
         } else {
             document.body.classList.remove('overflow-y-hidden');
         }

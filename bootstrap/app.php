@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register middleware aliases here
         $middleware->alias([
             'role' => RoleMiddleware::class,
+            'ensure.enabled' => \App\Http\Middleware\EnsureAccountIsEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -18,6 +18,9 @@
         </div>
 
         {{-- Login Form --}}
+    @if(session('error'))
+        <div class="bg-red-100 text-red-800 p-2 rounded mb-2">{{ session('error') }}</div>
+    @endif
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 

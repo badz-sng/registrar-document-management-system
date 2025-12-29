@@ -83,4 +83,69 @@ class DashboardController extends Controller
         $users = User::with('latestLogin')->get();
         return view('admin.users', compact('users'));
     }
+
+    /**
+     * Return full login history JSON for a given user (admin only)
+     */
+    public function loginHistory($id)
+    {
+        $user = User::findOrFail($id);
+
+        $histories = $user->loginHistories()->orderBy('created_at', 'desc')->get()->map(function ($h) {
+            return [
+                'id' => $h->id,
+                'created_at' => \Carbon\Carbon::parse($h->created_at)->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') . ' PHT',
+                'ip_address' => $h->ip_address,
+            ];
+        });
+
+        return response()->json(['data' => $histories]);
+    }
+
+    /**
+     * Show edit form for a user
+     */
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
+    }
+
+    /**
+     * Update the given user
+     */
+    public function update(\Illuminate\Http\Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
+            'role' => ['required', 'in:' . implode(',', \App\Models\User::ROLES)],
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+    }
+
+    /**
+     * Toggle disabled state for a user.
+     */
+    public function toggleDisabled($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent self-disable
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'You cannot disable/enable your own account.');
+        }
+
+        $user->disabled = ! $user->disabled;
+        $user->save();
+
+        $status = $user->disabled ? 'disabled' : 'enabled';
+
+        return back()->with('success', "User account has been {$status}.");
+    }
 }

@@ -52,6 +52,16 @@ Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN])
 
         // Separate pages
         Route::get('/users', [AdminDashboard::class, 'users'])->name('admin.users.index');
+        // Login history JSON endpoint (admin only) — returns full login history for a given user
+        Route::get('/users/{id}/login-history', [AdminDashboard::class, 'loginHistory'])->name('admin.users.loginHistory');
+
+        // Edit / Update users (admin)
+        Route::get('/users/{id}/edit', [AdminDashboard::class, 'edit'])->name('admin.users.edit');
+        Route::patch('/users/{id}', [AdminDashboard::class, 'update'])->name('admin.users.update');
+
+        // Toggle disabled/enabled for an account
+        Route::patch('/users/{id}/toggle-disabled', [AdminDashboard::class, 'toggleDisabled'])->name('admin.users.toggleDisabled');
+
         Route::get('/for-release', [AdminDashboard::class, 'forRelease'])->name('admin.forRelease');
 
         // Toggle signed status for documents
