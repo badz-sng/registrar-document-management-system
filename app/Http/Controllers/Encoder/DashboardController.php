@@ -11,6 +11,9 @@ use App\Helpers\ProcessingDays;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+use App\Mail\RequestEncodedConfirmation;
+use Illuminate\Support\Facades\Mail;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -90,7 +93,7 @@ class DashboardController extends Controller
         $releaseDate = ProcessingDays::computeReleaseDate(Carbon::now(), $maxProcessingDays);
 
         // Create the Request
-        RequestModel::create([
+        $requestModel = RequestModel::create([
             'student_id' => $student->id,
             'document_type_id' => $firstDocId,
             'document_type_ids' => $docIds,
@@ -100,6 +103,11 @@ class DashboardController extends Controller
             'encoded_at' => now(),
             'estimated_release_date' => $releaseDate,
         ]);
+
+        // Send confirmation email if student has email
+        if ($student->email) {
+            Mail::to($student->email)->send(new RequestEncodedConfirmation($requestModel));
+        }
 
         return back()->with('success', 'Request successfully encoded.');
     }
