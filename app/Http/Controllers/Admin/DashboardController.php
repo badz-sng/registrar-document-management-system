@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -121,8 +122,8 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', 'in:' . implode(',', \App\Models\User::ROLES)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'role' => ['required', 'in:' . implode(',', User::ROLES)],
         ]);
 
         $user->update($validated);
