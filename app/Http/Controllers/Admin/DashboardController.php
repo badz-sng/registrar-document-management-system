@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\RequestModel;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -48,7 +49,7 @@ class DashboardController extends Controller
 
    public function forRelease()
     {
-        $requests = \App\Models\RequestModel::with(['student', 'documents'])
+        $requests = RequestModel::with(['student', 'documents'])
             ->whereIn('status', ['for_signature', 'for_release'])
             ->get();
 
@@ -57,7 +58,7 @@ class DashboardController extends Controller
 
     public function toggleSigned($requestId, $documentId)
     {
-        $requestModel = \App\Models\RequestModel::findOrFail($requestId);
+        $requestModel = RequestModel::findOrFail($requestId);
         $pivot = $requestModel->documents()->where('document_type_id', $documentId)->first();
 
         if ($pivot) {
@@ -114,7 +115,7 @@ class DashboardController extends Controller
     /**
      * Update the given user
      */
-    public function update(\Illuminate\Http\Request $request, $id)
+    public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
