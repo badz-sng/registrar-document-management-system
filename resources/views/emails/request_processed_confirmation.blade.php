@@ -1,6 +1,6 @@
-<h1>Request Update</h1>
+<h1>Request Processed</h1>
 <p>Hello {{ $request->student->name }},</p>
-<p>Your document request has been successfully processed and is being prepared for release.</p>
+<p>Your document request has been successfully processed and is being prepared for verification.</p>
 
 <h3>Request Details:</h3>
 <ul>
