@@ -70,8 +70,8 @@ class DashboardController extends Controller
                 'is_signed' => !$current,
             ]);
 
-            // Reload the relationship to get fresh data after the update
-            $requestModel->load('documents');
+            // Reload the relationships to get fresh data after the update
+            $requestModel->load(['documents', 'student']);
 
             // Check if all documents are signed
             $allSigned = $requestModel->documents->every(fn($doc) => $doc->pivot->is_signed);
