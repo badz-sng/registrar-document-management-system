@@ -9,6 +9,8 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use App\Models\RequestModel;
+
 class RequestProcessConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
@@ -16,7 +18,7 @@ class RequestProcessConfirmation extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(public RequestModel $request)
     {
         //
     }
@@ -37,7 +39,7 @@ class RequestProcessConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.request_processed_confirmation',
         );
     }
 

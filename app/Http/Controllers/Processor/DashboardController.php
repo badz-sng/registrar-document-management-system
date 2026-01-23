@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Processor;
 use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
+use App\Mail\RequestProcessConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -36,6 +38,9 @@ class DashboardController extends Controller
 
     $request->status = 'for_release';
     $request->save();
+
+    // Send confirmation email to the student
+    Mail::to($request->student->email)->send(new RequestProcessConfirmation($request));
 
     return back()->with('success', 'Request marked as prepared successfully.');
     }
