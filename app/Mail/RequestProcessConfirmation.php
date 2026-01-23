@@ -9,16 +9,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-use App\Models\RequestModel;
-
-class RequestRetrieveConfirmation extends Mailable
+class RequestProcessConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public RequestModel $request)
+    public function __construct()
     {
         //
     }
@@ -29,7 +27,7 @@ class RequestRetrieveConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Request Retrieve Confirmation',
+            subject: 'Request Process Confirmation',
         );
     }
 
@@ -39,7 +37,7 @@ class RequestRetrieveConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.request_retrieved_confirmation',
+            view: 'view.name',
         );
     }
 
