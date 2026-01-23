@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Verifier;
 use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
+use App\Mail\RequestVerifyingConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -41,6 +43,9 @@ class DashboardController extends Controller
 
             if ($allVerified) {
                 $requestModel->update(['status' => 'verified']);
+                
+                // Send confirmation email to the student
+                Mail::to($requestModel->student->email)->send(new RequestVerifyingConfirmation($requestModel));
             }
         }
 
