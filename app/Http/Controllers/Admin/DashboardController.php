@@ -53,7 +53,7 @@ class DashboardController extends Controller
    public function forRelease()
     {
         $requests = RequestModel::with(['student', 'documents'])
-            ->whereIn('status', ['for_signature', 'for_release'])
+            ->whereIn('status', ['verified', 'for_release'])
             ->get();
 
         return view('admin.for-release', compact('requests'));
