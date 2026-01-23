@@ -34,6 +34,12 @@ class DashboardController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_school_year' => 'nullable|string|max:50',
+            'student_no' => 'nullable|string|max:255',
+            'course' => 'nullable|string|max:255',
+            'year_level' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'contact_number' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
             'document_type_id' => 'nullable|array',
             'document_type_id.*' => 'nullable',
             'document_type_other' => 'nullable|string|max:255',
@@ -44,14 +50,17 @@ class DashboardController extends Controller
         // Build full name for Student (legacy models expect single 'name' column)
         $fullName = trim($validated['last_name'] . ', ' . $validated['first_name'] . ' ' . ($validated['middle_name'] ?? ''));
 
-        // Create or find the Student (include last_school_year if provided)
+        // Create or find the Student (include all fields)
         $studentData = ['name' => $fullName];
-        // Ensure student_no is present (DB currently requires it). Use empty string if not provided.
-        $studentData['student_no'] = $request->input('student_no', '');
-        if ($request->filled('last_school_year')) {
-            $studentData['last_school_year'] = $request->input('last_school_year');
-        }
-        $student = Student::firstOrCreate($studentData);
+        $studentData['student_no'] = $validated['student_no'] ?? '';
+        if ($validated['course'] ?? null) $studentData['course'] = $validated['course'];
+        if ($validated['year_level'] ?? null) $studentData['year_level'] = $validated['year_level'];
+        if ($validated['address'] ?? null) $studentData['address'] = $validated['address'];
+        if ($validated['contact_number'] ?? null) $studentData['contact_number'] = $validated['contact_number'];
+        if ($validated['email'] ?? null) $studentData['email'] = $validated['email'];
+        if ($validated['last_school_year'] ?? null) $studentData['last_school_year'] = $validated['last_school_year'];
+        
+        $student = Student::firstOrCreate(['name' => $fullName], $studentData);
 
         // Determine document type ids
         $selected = $request->input('document_type_id', []);
@@ -105,8 +114,32 @@ class DashboardController extends Controller
         ]);
 
         // Send confirmation email if student has email
+        \Log::info('Attempting to send confirmation email', [
+            'student_id' => $student->id,
+            'student_email' => $student->email,
+            'has_email' => !empty($student->email),
+            'request_id' => $requestModel->id,
+        ]);
+
         if ($student->email) {
-            Mail::to($student->email)->send(new RequestEncodedConfirmation($requestModel));
+            try {
+                Mail::to($student->email)->send(new RequestEncodedConfirmation($requestModel));
+                \Log::info('Confirmation email sent successfully', [
+                    'to' => $student->email,
+                    'request_id' => $requestModel->id,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send confirmation email', [
+                    'error' => $e->getMessage(),
+                    'to' => $student->email,
+                    'request_id' => $requestModel->id,
+                ]);
+            }
+        } else {
+            \Log::warning('No email address found for student', [
+                'student_id' => $student->id,
+                'request_id' => $requestModel->id,
+            ]);
         }
 
         return back()->with('success', 'Request successfully encoded.');
