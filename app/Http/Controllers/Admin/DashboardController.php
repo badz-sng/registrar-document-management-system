@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Mail\RequestForReleaseConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -73,6 +75,9 @@ class DashboardController extends Controller
 
             if ($allSigned) {
                 $requestModel->update(['status' => 'for_release']);
+                
+                // Send confirmation email to the student
+                Mail::to($requestModel->student->email)->send(new RequestForReleaseConfirmation($requestModel));
             }
         }
 
