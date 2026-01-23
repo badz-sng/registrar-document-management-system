@@ -60,6 +60,14 @@ class RequestModel extends Model
         ->withTimestamps();
     }
 
+    /**
+     * Alias for documentTypes() relationship
+     */
+    public function documents()
+    {
+        return $this->documentTypes();
+    }
+
     public function representative()
     {
         return $this->belongsTo(Representative::class);
