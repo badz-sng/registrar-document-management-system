@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
 
+use App\Mail\RequestRetrieveConfirmation;
+use Illuminate\Support\Facades\Mail;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -33,6 +36,9 @@ class DashboardController extends Controller
             'status' => 'retrieved',
             'retriever_id' => auth()->id(),
         ]);
+
+        // Send confirmation email to the student
+        Mail::to($req->student->email)->send(new RequestRetrieveConfirmation($req));
 
         return back()->with('success', 'Envelope marked as retrieved.');
     }

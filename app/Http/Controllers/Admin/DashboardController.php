@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Mail\RequestForReleaseConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -51,7 +53,7 @@ class DashboardController extends Controller
    public function forRelease()
     {
         $requests = RequestModel::with(['student', 'documents'])
-            ->whereIn('status', ['for_signature', 'for_release'])
+            ->whereIn('status', ['verified', 'for_release'])
             ->get();
 
         return view('admin.for-release', compact('requests'));
@@ -68,11 +70,17 @@ class DashboardController extends Controller
                 'is_signed' => !$current,
             ]);
 
+            // Reload the relationships to get fresh data after the update
+            $requestModel->load(['documents', 'student']);
+
             // Check if all documents are signed
             $allSigned = $requestModel->documents->every(fn($doc) => $doc->pivot->is_signed);
 
             if ($allSigned) {
                 $requestModel->update(['status' => 'for_release']);
+                
+                // Send confirmation email to the student
+                Mail::to($requestModel->student->email)->send(new RequestForReleaseConfirmation($requestModel));
             }
         }
 

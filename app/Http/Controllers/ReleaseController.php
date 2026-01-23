@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\RequestModel;
+use App\Models\ReleaseRecord;
+use App\Mail\RequestForReleaseConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class ReleaseController extends Controller
 {
@@ -15,6 +19,9 @@ class ReleaseController extends Controller
         ]);
 
         $request->update(['status' => 'released']);
+
+        // Send confirmation email to the student
+        Mail::to($request->student->email)->send(new RequestForReleaseConfirmation($request));
 
         return back()->with('success', 'Document released successfully.');
     }

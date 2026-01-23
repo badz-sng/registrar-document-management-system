@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use App\Models\Student;
 use App\Models\DocumentType;
+use App\Mail\RequestEncodedConfirmation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class RequestController extends Controller
 {
@@ -149,6 +152,35 @@ class RequestController extends Controller
 
         $requestModel = RequestModel::create($data);
         $requestModel->documentTypes()->attach($documentTypeIds);
+
+        // Send confirmation email if student has email
+        Log::info('Attempting to send confirmation email', [
+            'student_id' => $student->id,
+            'student_email' => $student->email,
+            'has_email' => !empty($student->email),
+            'request_id' => $requestModel->id,
+        ]);
+
+        if ($student->email) {
+            try {
+                Mail::to($student->email)->send(new RequestEncodedConfirmation($requestModel));
+                Log::info('Confirmation email sent successfully', [
+                    'to' => $student->email,
+                    'request_id' => $requestModel->id,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send confirmation email', [
+                    'error' => $e->getMessage(),
+                    'to' => $student->email,
+                    'request_id' => $requestModel->id,
+                ]);
+            }
+        } else {
+            Log::warning('No email address found for student', [
+                'student_id' => $student->id,
+                'request_id' => $requestModel->id,
+            ]);
+        }
 
         return redirect()->route('requests.index')->with('success', 'Requests recorded successfully!');
     }

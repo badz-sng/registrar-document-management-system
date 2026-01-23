@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Processor;
 use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
+use App\Mail\RequestProcessConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -28,14 +30,17 @@ class DashboardController extends Controller
 
     public function markAsPrepared($id)
     {
-    $request = \App\Models\Request::findOrFail($id);
+    $request = RequestModel::findOrFail($id);
 
     if ($request->status !== 'retrieved') {
         return back()->with('error', 'Only retrieved requests can be marked as prepared.');
     }
 
-    $request->status = 'prepared';
+    $request->status = 'ready_for_verification';
     $request->save();
+
+    // Send confirmation email to the student
+    Mail::to($request->student->email)->send(new RequestProcessConfirmation($request));
 
     return back()->with('success', 'Request marked as prepared successfully.');
     }
