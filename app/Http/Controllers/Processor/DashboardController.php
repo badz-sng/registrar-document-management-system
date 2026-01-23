@@ -36,7 +36,7 @@ class DashboardController extends Controller
         return back()->with('error', 'Only retrieved requests can be marked as prepared.');
     }
 
-    $request->status = 'for_release';
+    $request->status = 'ready_for_verification';
     $request->save();
 
     // Send confirmation email to the student
