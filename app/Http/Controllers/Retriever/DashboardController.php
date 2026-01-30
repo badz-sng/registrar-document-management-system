@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Retriever;
 
 use App\Http\Controllers\Controller;
 use App\Models\RequestModel;
+use App\Models\DocumentType;
+use App\Helpers\ProcessingDays;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 use App\Mail\RequestRetrieveConfirmation;
 use Illuminate\Support\Facades\Mail;
@@ -30,11 +33,25 @@ class DashboardController extends Controller
             abort(403, 'Unauthorized to update this request.');
         }
 
+        // Determine processing days based on the document types (use max)
+        $docIds = $req->document_type_ids ?? [$req->document_type_id];
+        $maxProcessingDays = 0;
+        
+        foreach ($docIds as $docId) {
+            $doc = DocumentType::findOrFail($docId);
+            $days = ProcessingDays::getProcessingDays($doc->name);
+            $maxProcessingDays = max($maxProcessingDays, $days);
+        }
+        
+        // Compute release date from today based on max processing days
+        $releaseDate = ProcessingDays::computeReleaseDate(Carbon::now(), $maxProcessingDays);
+
         // Use a consistent, lowercase status token for storage. UI can render
         // human-readable versions (e.g., ucfirst) as needed.
         $req->update([
             'status' => 'retrieved',
             'retriever_id' => auth()->id(),
+            'estimated_release_date' => $releaseDate,
         ]);
 
         // Send confirmation email to the student

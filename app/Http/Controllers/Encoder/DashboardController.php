@@ -92,15 +92,6 @@ class DashboardController extends Controller
             $repName = $request->input('representative_name');
         }
 
-        // Determine processing days based on the document types (use max)
-        $processingDaysList = [];
-        foreach ($docIds as $docId) {
-            $doc = DocumentType::findOrFail($docId);
-            $processingDaysList[] = ProcessingDays::getDays($doc->name);
-        }
-        $maxProcessingDays = max($processingDaysList);
-        $releaseDate = ProcessingDays::computeReleaseDate(Carbon::now(), $maxProcessingDays);
-
         // Create the Request
         $requestModel = RequestModel::create([
             'student_id' => $student->id,
@@ -110,7 +101,6 @@ class DashboardController extends Controller
             'encoded_by' => Auth::id(),
             'status' => 'Pending',
             'encoded_at' => now(),
-            'estimated_release_date' => $releaseDate,
         ]);
 
         // Send confirmation email if student has email
