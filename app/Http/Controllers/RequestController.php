@@ -97,43 +97,6 @@ class RequestController extends Controller
         if (empty($documentTypeIds)) {
             return back()->withErrors(['document_type_id' => 'Please select at least one document type'])->withInput();
         }
-        $processingDaysList = [];
-        foreach ($documentTypeIds as $docTypeId) {
-            $docType = DocumentType::findOrFail($docTypeId);
-            $processingDaysList[] = $this->getProcessingDays($docType->name);
-        }
-        $maxProcessingDays = max($processingDaysList);
-        $releaseDate = $this->calculateReleaseDate(now(), $maxProcessingDays);
-
-        // Cutoff logic: if total requests for any selected document type exceeds 10 for the release date, add 1 day for all
-        $cutoffExceeded = false;
-        foreach ($documentTypeIds as $docTypeId) {
-            // Count legacy rows with single document_type_id
-            $countLegacy = RequestModel::where('document_type_id', $docTypeId)
-                ->whereDate('estimated_release_date', $releaseDate->format('Y-m-d'))
-                ->count();
-
-            // Count new rows where document_type_ids (JSON array) contains this id
-            $countJson = RequestModel::whereJsonContains('document_type_ids', $docTypeId)
-                ->whereDate('estimated_release_date', $releaseDate->format('Y-m-d'))
-                ->count();
-
-            $count = $countLegacy + $countJson;
-
-            if ($count >= 10) {
-                $cutoffExceeded = true;
-                break;
-            }
-        }
-        if ($cutoffExceeded) {
-            // Add 1 day, skipping weekends/holidays
-            $holidays = [
-                '2025-01-01', '2025-04-17', '2025-04-18', '2025-06-12', '2025-11-01', '2025-12-25', '2025-12-30'
-            ];
-            do {
-                $releaseDate->addDay();
-            } while ($releaseDate->isWeekend() || in_array($releaseDate->format('Y-m-d'), $holidays));
-        }
 
         // Create a single Request row that stores all selected document type ids.
         // For backwards compatibility we leave document_type_id NULL and populate document_type_ids JSON.
@@ -147,7 +110,6 @@ class RequestController extends Controller
             'encoded_by' => auth()->id(),
             'status' => 'Pending',
             'encoded_at' => now(),
-            'estimated_release_date' => $releaseDate,
         ];
 
         $requestModel = RequestModel::create($data);
